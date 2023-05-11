@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Login</title>
+</head>
+<style>
+	body{
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: #ffffff;
+}
+.box{
+  width: 300px;
+  padding: 40px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e3970;
+  text-align: center;
+  border-radius: 24px;
+}
+.box h3{
+  text-transform: uppercase;
+  color: rgb(253, 254, 255);
+  font-weight: 500;
+}
+.box input[type="email"],.box input[type="password"]{
+  border: 0;
+  background: none;
+  display: block;
+  text-align: center;
+  width: 200px;
+  height: 35px;
+  margin: 20px auto;
+  border: 2px solid #3498DB; 
+  border-radius: 24px;
+  color: white;
+  outline: none;
+}
+.box input[type="email"]:focus,.box input[type="password"]:focus{
+  width: 250px;
+  border-color: #2ECC71;
+  
+}
+.box button{
+  border: 0;
+  background: none;
+  display: block;
+  text-align: center;
+  width: 100px;
+  height: 35px;
+  margin: 20px auto;
+  border: 2px solid #2ECC71; 
+  border-radius: 24px;
+  outline: none;
+  color: white;
+  cursor: pointer;  
+}
+.box button:hover{
+  background-color: #2ECC71;
+}
+
+</style>
+<body>
+	<div class="box">
+<h3>Admin Login</h3>
+ {{#if adminLoginError}}
+ <p class="error" id="adminLoginError" style="color: red;">{{adminLoginError}}</p>
+    {{/if}}
+<form method="post" class="register-form" id="login-form" action="/admin/adminLogin">
+    <input type="email" name="email" id="your_name" placeholder=" Username"/>
+    <input type="password" name="password" id="your_pass" placeholder="Password"/>
+    <button type="submit"  id="signin" >Login</button>
+  </form>
+</div>
+</body>
+</html>

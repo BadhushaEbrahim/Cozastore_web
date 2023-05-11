@@ -1,0 +1,19 @@
+.expandMoreContent{
+    height: 20px;
+    overflow: hidden;
+    transition: height 0.5s ease-in-out;
+    position: relative;
+}
+.expandMoreContent.expand-active{
+    height: auto;
+    transition: height 0.5s ease-in-out;
+}
+.expandMoreHolder{
+    padding: 15px 0;
+    text-align: center;
+}
+.btn-expand-more{
+    cursor: pointer;
+    border: 1px solid rgba(0, 0,0,0.2);
+    display: inline-block;
+}

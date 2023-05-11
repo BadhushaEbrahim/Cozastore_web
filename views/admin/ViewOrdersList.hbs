@@ -1,0 +1,34 @@
+<body>
+    <br>
+  
+    <br>
+    <table class="table"  id="userTable">
+  <thead>
+    <tr>
+      <th >No</th>
+      <th >User</th>
+      <th >Date</th>
+      <th >Payment Method</th>
+      <th >Price</th>
+     
+      <th >Product Wise</th>
+     
+    </tr>
+  </thead>
+  <tbody>
+    {{#each ordersList}}
+    <tr>
+      <td>{{inc @index}}</td>
+      <td>{{this.address.name}}</td>
+      <td>{{this.date}}</td>
+      <th>{{this.paymentMethod}}</th>
+       <td>{{this.totalAmount}}</td>
+       {{!-- <td>{{this.status}}</td> --}}
+      <td>
+        <a href="/admin/adminproductOrders/{{this._id}}" class="btn btn-primary">View Products</a>
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+</body>
