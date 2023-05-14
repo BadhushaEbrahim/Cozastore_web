@@ -6,6 +6,8 @@ const state = {
 
 module.exports.connect = (done) => {
     const url = process.env.MONGO_URL
+    // const url='mongodb://localhost:27017'
+
     dbname='eshop'
 
     mongoClient.connect(url, (err, data) => {

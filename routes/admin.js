@@ -12,9 +12,6 @@ const { adminSignup, adminLogin, userList, getCategory, addCategory, addCategory
 } = require('../controllers/admin')
 
 
-
-    ;
-
 router.get('/', adminSignup);
 router.get('/adminlogin', adminLogin);
 router.post('/adminLogin', adminLoggedIn)

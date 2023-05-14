@@ -252,7 +252,7 @@
                         <li><a class="nav-link" href="/ViewOrders">Orders</a></li>
                         <li><a class="nav-link" data-bs-toggle="tab" href="#address">Addresses</a></li>
                         <li><a class="nav-link" data-bs-toggle="tab" href="#account-details">Account details</a></li>
-                        <li><a class="nav-link" data-bs-toggle="tab" href="#wallet-details">Wallet details</a></li>
+                        {{!-- <li><a class="nav-link" data-bs-toggle="tab" href="#wallet-details">Wallet details</a></li> --}}
                         <li><a class="nav-link" href="/userLogout">logout</a></li>
                     </ul>
                     <!-- End Nav tabs -->
@@ -278,7 +278,7 @@
                                         <div class="lbl">SILVER USER</div>
                                     </div>
                                 </div>
-                                <div class="col-12 col-lg-6">
+                                {{!-- <div class="col-12 col-lg-6">
                                     <ul class="profile-order mt-3 mt-lg-0">
                                         {{#if user.wallet}}
                                         <li>
@@ -294,7 +294,7 @@
 
 
                                     </ul>
-                                </div>
+                                </div> --}}
                             </div>
 
                         </div>
@@ -424,7 +424,7 @@
                         </div>
                         <!-- End Address -->
 
-                        <div id="wallet-details" class="address tab-pane">
+                        {{!-- <div id="wallet-details" class="address tab-pane">
                             <div class="row">
 
                                 <div class="col-12 col-sm-12">
@@ -439,7 +439,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {{!-- {{#each allAddress}}
+                                            {{#each allAddress}}
                                             <tr>
                                                 <td>{{inc @index}}</td>
 
@@ -456,12 +456,12 @@
                                                         style="height: 5px;background:red">Delete</a>
                                                 </td>
                                             </tr>
-                                            {{/each}} --}}
+                                            {{/each}}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- Account Details -->
                         <div id="account-details" class="tab-pane fade">

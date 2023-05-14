@@ -84,61 +84,70 @@ function editproduct(){
     swal("Success!", "product added successfully", "success");
 
 }
-function invoice1(length, address, orderNo) {
-    var date = new Date().toDateString().slice(3);
-    var productArray = [];
+function categoryupdated(){
+    swal("Success!", "category edited successfully", "success");
+
+
+}
+function bannerupdated(){
+    swal("Success!", "banner edited successfully", "success");
+
+}
+// function invoice1(length, address, orderNo) {
+//     var date = new Date().toDateString().slice(3);
+//     var productArray = [];
   
-    for (var i = 0; i < length; i++) {
-      var productName = document.getElementById("pName" + i).innerText;
-      var productPrice = document.getElementById("pPrice" + i).innerText;
-      var productQuantity = document.getElementById("pQ" + i).innerText;
+//     for (var i = 0; i < length; i++) {
+//       var productName = document.getElementById("pName" + i).innerText;
+//       var productPrice = document.getElementById("pPrice" + i).innerText;
+//       var productQuantity = document.getElementById("pQ" + i).innerText;
   
-      var product = {
-        "quantity": productQuantity,
-        "description": productName,
-        "tax-rate": 0,
-        "price": productPrice
-      };
+//       var product = {
+//         "quantity": productQuantity,
+//         "description": productName,
+//         "tax-rate": 0,
+//         "price": productPrice
+//       };
   
-      productArray.push(product);
-    }
+//       productArray.push(product);
+//     }
   
-    var data = {
-      "customize": {},
-      "images": {
-        "logo": "https://i.postimg.cc/Z5MvWH77/2.webp",
-      },
-      "sender": {
-        "company": "Furns Store.",
-        "address": "Thrikkakara",
-        "zip": "682004",
-        "city": "Ernakulam",
-        "country": "India"
-      },
-      "client": {
-        "company": address,
-        "address": "",
-        "zip": "",
-        "city": "",
-        "country": ""
-      },
-      "information": {
-        "number": orderNo,
-        "date": date,
-        "due-date": "NA"
-      },
-      "products": productArray,
-      "bottom-notice": "Thank You for choosing our store",
-      "settings": {
-        "currency": "INR"
-      },
-      "translate": {}
-    };
+//     var data = {
+//       "customize": {},
+//       "images": {
+//         "logo": "https://i.postimg.cc/Z5MvWH77/2.webp",
+//       },
+//       "sender": {
+//         "company": "cozastore.",
+//         "address": "perumbavoor",
+//         "zip": "683556",
+//         "city": "Ernakulam",
+//         "country": "India"
+//       },
+//       "client": {
+//         "company": address,
+//         "address": "",
+//         "zip": "",
+//         "city": "",
+//         "country": ""
+//       },
+//       "information": {
+//         "number": orderNo,
+//         "date": date,
+//         "due-date": "NA"
+//       },
+//       "products": productArray,
+//       "bottom-notice": "Thank You for choosing our store",
+//       "settings": {
+//         "currency": "INR"
+//       },
+//       "translate": {}
+//     };
   
-    easyinvoice.createInvoice(data, function (result) {
-      easyinvoice.download("invoice.pdf");
-    });
-  }
+//     easyinvoice.createInvoice(data, function (result) {
+//       easyinvoice.download("invoice.pdf");
+//     });
+//   }
   
   
   

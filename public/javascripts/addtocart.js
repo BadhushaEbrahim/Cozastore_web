@@ -63,6 +63,11 @@ function razorpayPayment(order){
 
       verifyPayment(response, order)
   },
+  "modal": {
+    "ondismiss": function(){ 
+     window.location.replace('https://cozastore.website/payment-failed/'+order.receipt);
+    }
+  },
   
     "prefill": {
         "name": "Gaurav Kumar",
@@ -96,7 +101,6 @@ function verifyPayment(payment,order) {
         if(response.status){
           location.href='/orderSucess'
         }else{
-          location.href='/paymentFailed'
           alert("Payment Failed");
         }
       }

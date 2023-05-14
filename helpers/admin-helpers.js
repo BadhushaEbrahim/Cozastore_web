@@ -305,28 +305,32 @@ module.exports = {
   /* -------------------------------------------------------------------------- */
 
   getTotalUsers: () => {
-    try {
-      return new Promise(async (resolve, reject) => {
-        let totalUsers = await db.get().collection(collection.USER_COLLECTION).aggregate([
-          {
-            $match: {
-              "isblocked": { $in: [false] }
+    return new Promise(async (resolve, reject) => {
+      try {
+        const totalUsers = await db
+          .get()
+          .collection(collection.USER_COLLECTION)
+          .aggregate([
+            {
+              $match: {
+                isblocked: false
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                userCount: { $sum: 1 }
+              }
             }
-          },
-          {
-            $project: {
-              user: { _id: 1 }
-            }
-          },
-          {
-            $count: 'user'
-          }
-        ]).toArray()
-        resolve(totalUsers[0]?.user)
-      })
-    } catch (error) {
-      response.render('404', { layout: null })
-    }
+          ])
+          .toArray();
+    
+        resolve(totalUsers.length > 0 ? totalUsers[0].userCount : 0);
+      } catch (error) {
+        response.render('404', { layout: null });
+      }
+    });
+    
 
   },
 

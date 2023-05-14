@@ -752,6 +752,7 @@ module.exports = {
         products: products,
         totalAmount: totalPrice,
         date: new Date(),
+
         orderDate: moment().format('YYYY-MM-D'),
         orderMonth: moment().format('YYYY-MM'),
         orderYear: moment().format('YYYY'),
@@ -1187,7 +1188,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       let walletDetails;
       walletDetails = {
-        date: new Date().toDateString(),
+        date: new Date().getDate(),
         orderId: data.orderId,
         amount: amount,
         description: data.status
@@ -1220,17 +1221,15 @@ module.exports = {
         let quantity = parseInt(orderDetails.productQuantity);
         let amount = parseInt(value2 * quantity);
         let wallet = parseInt(user.wallet)
-        amount = amount + wallet;
+  
         console.log("the returned amount ", amount);
 
-        let data = await db.get().collection(collection.USER_COLLECTION).updateOne({ _id: ObjectId(user._id) }, {
+        await db.get().collection(collection.USER_COLLECTION).updateOne({ _id: ObjectId(user._id) }, {
           $set: {
-            wallet: amount
+            wallet: amount+wallet
           }
         })
       })
-
-      resolve({ status: true })
     })
   },
 

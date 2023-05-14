@@ -107,28 +107,28 @@
 					<i class="zmdi zmdi-search"></i>
 				</div>
 
-				{{#if user}}
-				<a href="/cart">
-					<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-cart icon-header-noti"
-						data-notify="{{cartCount}}">
-						<i class="zmdi zmdi-shopping-cart"></i>
-					</div>
-				</a>
-				<a href="/wishList"
-					class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti"
-					data-notify="{{wishlistCount}}">
-					<i class="zmdi zmdi-favorite-outline"></i>
-				</a>
-				{{else}}
-				<a href="/userLogin">
-					<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-cart">
-						<i class="zmdi zmdi-shopping-cart"></i>
-					</div>
-				</a>
-				<a href="/userLogin" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 ">
-					<i class="zmdi zmdi-favorite-outline"></i>
-				</a>
-				{{/if}}
+						 {{#if user}}
+                        <a href="/cart">
+                            <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-cart icon-header-noti"
+                                data-notify="{{cartCount}}">
+                                <i class="zmdi zmdi-shopping-cart"></i>
+                            </div>
+                        </a>
+                        <a href="/wishList"
+                            class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti"
+                            data-notify="{{wishlistCount}}">
+                            <i class="zmdi zmdi-favorite-outline"></i>
+                        </a>
+                        {{else}}
+                        <a href="/userLogin">
+                            <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-cart">
+                                <i class="zmdi zmdi-shopping-cart"></i>
+                            </div>
+                        </a>
+                        <a href="/userLogin" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 ">
+                            <i class="zmdi zmdi-favorite-outline"></i>
+                        </a>
+                        {{/if}}
 			</div>
 
 			<!-- Button show menu -->
@@ -300,25 +300,67 @@
 
 
 
-	<div class="px-5 mt-2 d-flex justify-content-end">
+	<!-- Shoping Cart -->
+	{{!-- <section class="bg0 p-t-75 p-b-85">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
+					<div class="m-l-25 m-r--38 m-lr-0-xl">
+						<div class="wrap-table-shopping-cart">
+							<table class="table-shopping-cart">
+								<tr class="table_head">
+									<th class="column-1">Product</th>
+									<th class="column-2"></th>
+									<th class="column-3">Quantity</th>
+									<th class="column-4">Price</th>
+									<th class="column-5">Option</th>
+								</tr>
+								{{#each products}}
+								<tr class="table_row">
 
-		<button type="submit" class=" button-24 btn-center "
 
-		onclick="invoice1('{{products.length}}','{{orders.deliveryDetails.address}}','{{orders._id}}')"> Download
-			invoice</button>
-	
-	
+									<td class="column-1">
+										<div class="how-itemcart1">
+											<img src="/product-images/{{this.product._id}}.jpg" alt="IMG">
+										</div>
+									</td>
+									<td class="column-2">{{this.product.name}}</td>
+									<td class="column-3">
+										<span class="">{{this.quantity}}</span>
+									</td>
+									<td class="column-4">$ {{this.product.price}}</td> --}}
+									{{!-- <td class="column-5"> <a href="/removeProduct/{{this._id}}"
+											class="text-danger"><i class="fas fa-trash fa-lg"></i></a></td> --}}
+									{{!--
+								</tr>
 
-	</div>
-	<div id="invoice-area" class="container-fluid py-3 " style="height: 100%;">
+								{{/each}}
+
+							</table>
+						</div>
+
+
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+		</div>
+	</section> --}}
+	<div class="container-fluid " style="height: 100%;">
 		<div class="table-wrapper">
 			<div class="table-title">
-				<div class="row">
-
+	<div class="row mt-3 mb-3 ">
+    <div class="col text-end d-flex flex-row-reverse  "><button class="btn btn-success align-self-center"
+    onclick="invoice('{{products.length}}','{{this.orders.deliveryDetails.address}}','{{this.order.id}}')">download
+    invoice</button></div>
 				</div>
 			</div>
 
-			<table class="table py-5">
+
+     </div>
+			<table class="table">
 				<thead>
 					<tr>
 						<th>No</th>
@@ -343,7 +385,7 @@
 						<td id="pName{{@index}}">{{this.product.name}}</td>
 						<td id="pQ{{@index}}">{{this.quantity}}</td>
 						<td id="pPrice{{@index}}">{{this.product.price}}</td>
-						<td>{{this.status}}</td>
+						<td >{{this.status}}</td>
 						<td>
 							{{#ifEquals this.status 'Placed'}}
 							<button class="button-24"
@@ -360,16 +402,13 @@
 							{{#ifEquals this.status 'Shipped'}}
 							<p>Product Shipped</p>
 							{{/ifEquals }}
+						</td>
+					</tr>
+					{{/each}}
+				</tbody>
+			</table>
+
 		</div>
-		</td>
-		</tr>
-		{{/each}}
-		</tbody>
-		</table>
-
-	</div>
-
-	</div>
 	</div>
 	<style>
 		/* CSS */
@@ -431,9 +470,99 @@
 				}
 			})
 		}
+	</script>
+
+<script type="text/javascript">
+	  function invoice(length, address, orderNo) {
+            var date = new Date().toDateString().slice(3)
+            //  console.log(length)
+            //  console.log(address)
+            console.log(orderNo)
+            var productArray = []
+            for (var i = 0; i < length; i++) {
+
+                console.log(34)
+                var productName = document.getElementById("pName" + i).innerText;
+                console.log(productName)
+                var productPrice = document.getElementById("pPrice" + i).innerText;
+                console.log(productPrice)
+                var productQuantity = document.getElementById("pQ" + i).innerText;
+                console.log(productQuantity)
+
+                var product = {
+                    "quantity": productQuantity,
+                    "description": productName,
+                    "tax-rate": 0,
+                    "price": productPrice
+                }
+                productArray.push(product)
+
+            }
+            console.log(productArray)
+
+            var data = {
+
+                "customize": {
+
+                },
+                "images": {
+
+                    "logo": "https://i.postimg.cc/FH7pDWw0/logo-01.png",
+                },
+
+                "sender": {
+                    "company": "cozaStore.",
+                    "address": "perumbavoor",
+                    "zip": "683556",
+                    "city": "Ernakulam",
+                    "country": "India"
+
+                },
+
+                "client": {
+                    "company": address,
+                    "address": "",
+                    "zip": "",
+                    "city": "",
+                    "country": ""
+
+                },
+                "information": {
+                    // Invoice number
+                    "number": orderNo,
+                    // Invoice data
+                    "date": date,
+                    "due-date": "NA"
+                },
+
+                "products": productArray,
 
 
+                "bottom-notice": "Thank You for choosing our store",
 
+                "settings": {
+                    "currency": "INR",
+
+                },
+
+                "translate": {
+
+                },
+            };
+
+
+            easyinvoice.createInvoice(data, function (result) {
+
+                easyinvoice.download("invoice.pdf")
+            });
+
+        }
+
+</script>
+
+	<script type="text/javascript">
+	
+      
 
 		function returnOrder(value, orderId, productId, productPrice, productQuantity) {
 			swal({
@@ -464,65 +593,11 @@
 				}
 			})
 
-		},
-       function invoice1(length, address, orderNo) {
-			var date = new Date().toDateString().slice(3);
-			var productArray = [];
-
-			for (var i = 0; i < length; i++) {
-				var productName = document.getElementById("pName" + i).innerText;
-				var productPrice = document.getElementById("pPrice" + i).innerText;
-				var productQuantity = document.getElementById("pQ" + i).innerText;
-
-				var product = {
-					"quantity": productQuantity,
-					"description": productName,
-					"tax-rate": 0,
-					"price": productPrice
-				};
-
-				productArray.push(product);
-			}
-
-			var data = {
-				"customize": {},
-				"images": {
-				},
-				"sender": {
-					"company": " cozaStore.",
-					"address": "perumbavoor",
-					"zip": "683556",
-					"city": "Ernakulam",
-					"country": "India"
-				},
-				"client": {
-					"company": address,
-					"address": "",
-					"zip": "",
-					"city": "",
-					"country": ""
-				},
-				"information": {
-					"number": orderNo,
-					"date": date,
-					"due-date": "NA"
-				},
-				"products": productArray,
-				"bottom-notice": "Thank You for choosing our store",
-				"settings": {
-					"currency": "INR"
-				},
-				"translate": {}
-			};
-
-			easyinvoice.createInvoice(data, function (result) {
-				easyinvoice.download("invoice.pdf",result.pdf);
-			});
-		},
-
-
+		}
 	</script>
-	 
-	<script src="https://unpkg.com/easyinvoice/dist/easyinvoice.min.js"></script>
+
+
+
+<script src="https://unpkg.com/easyinvoice/dist/easyinvoice.min.js"></script>
 
 </body>

@@ -33,7 +33,6 @@ adminLogin:async(req,res)=>{
    let adminId=req.session.admin
    if(adminId){
       let TotalUsers= await adminHelper.getTotalUsers()
-      
       let salesData=await adminHelper.getAllSales()
       let totalProducts=await adminHelper.getAllProductCount()
       let totalOrders=await adminHelper.getTotalOrders()

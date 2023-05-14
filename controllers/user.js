@@ -350,7 +350,7 @@ module.exports = {
 
         if (verifyCoupon.couponId == req.body.couponcode) {
 
-            let discountAmount = (totalPrice * parseInt(verifyCoupon.couponPercentage)) / 100;
+            let discountAmount = Math.floor((totalPrice * parseInt(verifyCoupon.couponPercentage)) / 100);
 
             let amount = totalPrice - discountAmount;
 
@@ -363,41 +363,6 @@ module.exports = {
                     userHelper.generateRazorPay(orderId, amount).then((response) => {
                         response.razorPay = true
                         res.json(response)
-                    })
-                }
-                else if (req.body['paymentMethod'] === 'PAYPAL') {
-                    var payment = {
-                        "intent": "sale",
-                        "payer": {
-                            "payment_method": "paypal"
-                        },
-                        "redirect_urls": {
-                            "return_url": "user/orderSucess",
-                            "cancel_url": "user/payment-failed" + orderId,
-                        },
-                        "transactions": [{
-                            "amount": {
-                                "currency": "USD",
-                                "total": amount
-                            },
-                            "description": "this is order"
-                        }]
-                    };
-
-                    userHelper.createPaypal(payment).then((transaction) => {
-                        var id = transaction.id;
-                        var links = transaction.links;
-                        var counter = links.length;
-                        while (counter--) {
-                            if (links[counter].rel == 'approval_url') {
-                                transaction.payPal = true
-                                transaction.linkto = links[counter].href
-                                transaction.orderId = orderId
-                                userHelper.changePaymentStatus(orderId).then(() => {
-                                    res.json(transaction)
-                                })
-                            }
-                        }
                     })
                 }
 
@@ -415,41 +380,7 @@ module.exports = {
                         res.json(response)
                     })
                 }
-                else if (req.body['paymentMethod'] === 'PAYPAL') {
-                    var payment = {
-                        "intent": "sale",
-                        "payer": {
-                            "payment_method": "paypal"
-                        },
-                        "redirect_urls": {
-                            "return_url": "user/orderSucess",
-                            "cancel_url": "user/paymentFailed"
-                        },
-                        "transactions": [{
-                            "amount": {
-                                "currency": "USD",
-                                "total": totalPrice
-                            },
-                            "description": "this is order"
-                        }]
-                    };
-
-                    userHelper.createPaypal(payment).then((transaction) => {
-                        var id = transaction.id;
-                        var links = transaction.links;
-                        var counter = links.length;
-                        while (counter--) {
-                            if (links[counter].rel == 'approval_url') {
-                                transaction.payPal = true
-                                transaction.linkto = links[counter].href
-                                transaction.orderId = orderId
-                                userHelper.changePaymentStatus(orderId).then(() => {
-                                    res.json(transaction)
-                                })
-                            }
-                        }
-                    })
-                }
+               
 
             })
         }
