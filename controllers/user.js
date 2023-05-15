@@ -392,19 +392,18 @@ module.exports = {
 
     //---------------------------------------PAYMENT - FAILED RAZORPAY--------------------
 
-
-    getPaymentFailed: async (req, res) => {
-
-        console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj');
+    getPaymentFailed:async(req,res)=>{
         // if(req.session.user.orderId){
-        let user = req.session.user;
-        await userHelper.deletePendingOrder(req.params.orderId).then(async () => {
-            let categories = await userHelper.getAllcategories()
-            res.render('user/paymentFailed', { wishlistCount, user, categories })
-        })
-
-
-    },
+            let user=req.session.user;
+           await userHelper.deletePendingOrder(req.params.orderId).then(async()=>{
+            let cartCount=await userHelper.getCartCount(req.session.user._id) 
+            let wishlistCount=await userHelper.getWishlistCount(req.session.user._id);
+             let categories=await userHelper.getAllcategories()
+                  res.render('user/paymentFailed',{cartCount,wishlistCount,user,categories})
+           })
+       
+       
+     },
 
 
     //-----------------------------------------ORDER SUCESSS RENDER PAGE-------------------------

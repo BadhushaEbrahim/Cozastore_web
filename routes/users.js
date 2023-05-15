@@ -67,7 +67,7 @@ router.post('/applyCoupon', postCouponApply)
 router.post('/removeCoupon', postCouponRemove)
 router.post('/searchProducts', postSearchProducts)
 
-router.get('/payment-failed', getPaymentFailed)
+router.get('/payment-failed/:orderId',getPaymentFailed)
 
 
 

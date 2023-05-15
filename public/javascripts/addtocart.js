@@ -53,7 +53,7 @@ function razorpayPayment(order){
     "currency": "INR",
     "name": "Badusha",
     "description": "Test Transaction",
-    "image": "https://example.com/your_logo",
+    "image": "https://i.postimg.cc/FH7pDWw0/logo-01.png",
     "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
     "handler": function (response) {
       // alert(response.razorpay_payment_id);
