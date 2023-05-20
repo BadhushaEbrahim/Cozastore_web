@@ -8,7 +8,7 @@ const { userhomePage, getLogin, getSignup, postSignup, ChangeProductQuantity, po
        userCancelOrder, removeProductFromCart, viewOrderedProducts, getCategoryWise, paymentVerify, postUserProfile,
        userCancelProduct, addUserAddress, setOrderedProductStatus, addDeliveryAaddress, editAddress,
        postEditUserAddress, deleteUserAddress, postCouponApply, postCouponRemove, displayWishList, addToWishList, removeProductFromWishlist,
-       getPaymentFailed, postSearchProducts, returnProduct } = require('../controllers/user');
+       getPaymentFailed, postSearchProducts, returnProduct } = require('../controllers/user-controler');
 const { verify } = require('jsonwebtoken');
 
 
@@ -20,8 +20,8 @@ router.post('/', postLogin)
 router.get('/userLogout', getLogout)
 router.get('/userSignup', getSignup)
 router.post('/userSignup', postSignup)
-router.get('/products', getProducts)
-router.get('/getProductDetail/', verify, getProductDetails)
+router.get('/products', veryfy.veryfylogin,getProducts)
+router.get('/getProductDetail/', veryfy.veryfylogin,getProductDetails)
 
 router.get('/viewCategoryWise/', getCategoryWise)
 router.get('/OtpPage', getotpPage)
@@ -43,13 +43,13 @@ router.post('/removeFromWishList', removeProductFromWishlist)
 router.post('/changeProductQuantity', ChangeProductQuantity)
 
 
-router.get('/proceedToCheckOut', getCheckoutPage)
-router.post('/placeOrder', PlaceOrder)
-router.get('/orderSucess', sucessOrder)
-router.get('/ViewOrders', getOrders)
+router.get('/proceedToCheckOut',veryfy.veryfylogin, getCheckoutPage)
+router.post('/placeOrder',PlaceOrder)
+router.get('/orderSucess',veryfy.veryfylogin, sucessOrder)
+router.get('/ViewOrders',veryfy.veryfylogin, getOrders)
 router.get('/userProfile', getUserProfile)
 router.post('/addUserAddress', addUserAddress)
-router.get('/editAddress/:id', editAddress)
+router.get('/editAddress/:id', veryfy.veryfylogin,editAddress)
 router.post('/editUseraddress', postEditUserAddress)
 router.get('/deleteUserAddress/:id', deleteUserAddress)
 router.post('/editUserProfile', postUserProfile)

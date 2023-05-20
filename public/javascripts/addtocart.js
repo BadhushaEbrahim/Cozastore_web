@@ -8,7 +8,6 @@ function addToCart(productId){
         method:'get',
         success:(response)=>{
             if(response.status){
-                console.log("ajaaxx")
                 let count=$('#cartCount').html()
                 count=parseInt(count)+1
                 $("#cartCount").html(count)
@@ -39,7 +38,6 @@ $("#checkOutForm").submit((e)=>{
            razorpayPayment(response)
       }
       else if(response.payPal){
-        console.log(response)
         location.replace(response.linkto)
       }
     }
@@ -125,7 +123,6 @@ function applyCoupon(event){
     method: 'post',
     success:(response)=>{
       if(response.verify){
-        console.log("hey hey hey")
         document.getElementById('discount').innerHTML="₹ "+response.discountAmount
         document.getElementById('totall').innerHTML= "₹ "+response.amount
         document.getElementById('percentage').innerHTML=response.couponData.couponPercentage+'%'
@@ -135,7 +132,6 @@ function applyCoupon(event){
         document.getElementById('deleteCouponBtn').hidden=false;
       }
       else{
-          console.log("hoy hoy hohy")
         document.getElementById('discount').innerHTML= "₹ " +0
         document.getElementById('totall').innerHTML= "₹ "+response.Total
         document.getElementById('percentage').innerHTML= 0 + "%"

@@ -48,24 +48,20 @@ module.exports = {
       // let loginStatus=false;
       let response = {}
       let user = await db.get().collection(collection.USER_COLLECTION).findOne({ email: userData.email })
-
       if (user) {
         bcrypt.compare(userData.password, user.password).then((status) => {
           if (status) {
 
-            console.log("Login Sucess");
             response.user = user
             response.status = true
             resolve(response)
           }
           else {
-            console.log("LOGIN FAILED");
             resolve({ status: false })
           }
         })
       }
       else {
-        console.log("user login fialed");
         resolve({ status: false })
       }
     })
@@ -78,16 +74,12 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       let user = await db.get().collection(collection.USER_COLLECTION).findOne({ phoneNumber: userData.phone })
       if (user) {
-
         response.status = true
         response.user = user
-        console.log("11111111111111")
         Client.verify.services(process.env.serviceId)
           .verifications
           .create({ to: `+91${userData.phone}`, channel: 'sms' })
           .then((data) => {
-
-
           });
         resolve(response)
       }
@@ -101,8 +93,6 @@ module.exports = {
 
   doOTPConfirm: (confirmotp, userData) => {
     return new Promise((resolve, reject) => {
-
-      console.log(userData)
       Client.verify.services(process.env.serviceId)
         .verificationChecks
         .create({
@@ -126,8 +116,8 @@ module.exports = {
 
 
   getUserDetails: (userId) => {
-    return new Promise((resolve, reject) => {
-      let userdetails = db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(userId) })
+    return new Promise(async(resolve, reject) => {
+    let userdetails = await db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(userId) })
       resolve(userdetails)
     })
 
@@ -207,8 +197,6 @@ module.exports = {
 
   deleteAddress: (userId, Id) => {
     return new Promise(async (resolve, reject) => {
-      console.log(userId);
-      console.log(Id);
       await db.get().collection(collection.ADDRESS_COLLECTION).deleteOne({ user: ObjectId(userId), id: Id }).
         then((response) => {
           resolve(response)
@@ -263,7 +251,6 @@ module.exports = {
 
 
   updateUserProfile: (userId, userDetails) => {
-    console.log(userId, "yea", userDetails)
     return new Promise((resolve, reject) => {
       db.get().collection(collection.USER_COLLECTION).updateOne({ _id: ObjectId(userId) },
         {
@@ -315,7 +302,7 @@ module.exports = {
 
   getAllcategories: () => {
     return new Promise(async (resolve, reject) => {
-      let categories = await db.get().collection(collection.CATEGORY_COLLECTION).find().toArray()
+      const categories = await db.get().collection(collection.CATEGORY_COLLECTION).find().toArray()
       resolve(categories)
     })
   },
@@ -330,7 +317,6 @@ module.exports = {
 
     return new Promise(async (resolve, reject) => {
       let details = await db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: ObjectId(productId) }, { projection: { name: 1, stock: 1, category: 1, price: 1 } })
-      // console.log(details,"this is the infromation about details in cart")
       let productObj = {
         item: ObjectId(productId),
         quantity: 1,
@@ -342,7 +328,6 @@ module.exports = {
       if (userCart) {
 
         let productExist = userCart.products.findIndex(product => product.item == productId)
-        console.log(productExist)
         if (productExist != -1) {
           db.get().collection(collection.CART_COLLECTION)
             .updateOne({ user: ObjectId(userId), 'products.item': ObjectId(productId) },
@@ -583,7 +568,6 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.get().collection(collection.CART_COLLECTION).deleteOne({ _id: ObjectId(productId) }).then((response) => {
         resolve(response)
-        console.log(response);
       })
     })
   },
@@ -740,7 +724,6 @@ module.exports = {
   placeOrder: (order, products, totalPrice, user) => {
     return new Promise(async (resolve, reject) => {
 
-      console.log(totalPrice, "please be amount")
       let status = order['paymentMethod'] === 'COD' ? 'Placed' : 'Pending';
       products.forEach(products => {
         products.status = status;
@@ -898,7 +881,6 @@ module.exports = {
           }
         }
       ]).toArray()
-      // console.log(orderedItems)
       resolve(orderedItems)
     })
   },
@@ -934,10 +916,8 @@ module.exports = {
       instance.orders.create(options, function (err, order) {
         if (err) {
 
-          console.log(err)
         }
         else {
-          console.log("new order created", order)
           resolve(order)
         }
 
@@ -1071,7 +1051,6 @@ module.exports = {
               response.Coupenused = false
 
               resolve(response)
-              console.log('invalid date');
             }
           }
 
@@ -1160,7 +1139,6 @@ module.exports = {
       return new Promise(async (resolve, reject) => {
         var result = new RegExp(productName, 'i');
         let products = await db.get().collection(collection.PRODUCT_COLLECTION).find({ name: result }).toArray()
-        console.log(products, "product searched")
         if (products.length == 0) {
           reject({ productNotFound: true })
         } else {
@@ -1180,7 +1158,6 @@ module.exports = {
 
 
   setWalletHistory: async (user, data, description) => {
-    console.log(data, "heyeheyeheyeeheye t55555555555555555555")
     let value1 = parseInt(data.productPrice);
     let quantity = parseInt(data.productQuantity);
     let amount = parseInt(value1 * quantity);
@@ -1188,7 +1165,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       let walletDetails;
       walletDetails = {
-        date: new Date().getDate(),
+        date: new Date().toDateString(),
         orderId: data.orderId,
         amount: amount,
         description: data.status
@@ -1210,28 +1187,27 @@ module.exports = {
   /*                        RETURN ORDERED PRODUCT                              */
   /* -------------------------------------------------------------------------- */
 
-  returnOrderedProduct: (orderDetails, user) => {
-    return new Promise(async (resolve, reject) => {
-      await db.get().collection(collection.ORDER_COLLECTION).updateOne({ _id: ObjectId(orderDetails.orderId), "products.item": ObjectId(orderDetails.productId) }, {
-        $set: {
-          "products.$.status": orderDetails.status
+ 
+  returnOrderedProduct:(orderDetails,user)=>{
+    return new Promise(async(resolve,reject)=>{
+      await db.get().collection(collection.ORDER_COLLECTION).updateOne({_id:ObjectId(orderDetails.orderId),"products.item":ObjectId(orderDetails.productId)},{
+        $set:{
+          "products.$.status":orderDetails.status
         }
-      }).then(async () => {
-        let value2 = parseInt(orderDetails.productPrice);
-        let quantity = parseInt(orderDetails.productQuantity);
-        let amount = parseInt(value2 * quantity);
-        let wallet = parseInt(user.wallet)
-  
-        console.log("the returned amount ", amount);
-
-        await db.get().collection(collection.USER_COLLECTION).updateOne({ _id: ObjectId(user._id) }, {
-          $set: {
-            wallet: amount+wallet
+      }).then(async()=>{
+        let value2=parseInt(orderDetails.productPrice);
+        let quantity=parseInt(orderDetails.productQuantity);
+        let amount=parseInt(value2*quantity);
+        let wallet=parseInt(user.wallet)
+        await db.get().collection(collection.USER_COLLECTION).updateOne({_id:ObjectId(user._id)},{
+          $set:{
+            wallet:amount+wallet
           }
-        })
+        })       
+       
       })
+      resolve({ status: true })
     })
   },
-
 
 }

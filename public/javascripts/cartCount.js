@@ -1,5 +1,4 @@
 function changeQuantity(cartId,productId,userId,count){
-    console.log("pooiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
     event.preventDefault();
     let quantity=parseInt(document.getElementById(productId).innerHTML)
     count=parseInt(count);

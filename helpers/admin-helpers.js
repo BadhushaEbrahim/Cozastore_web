@@ -203,7 +203,6 @@ module.exports = {
           }
         }
       ]).toArray()
-      console.log(orderList);
       resolve(orderList)
     })
 
@@ -250,7 +249,6 @@ module.exports = {
           },
 
         ]).toArray()
-        console.log(orderdItems)
         resolve(orderdItems)
       })
     } catch (error) {

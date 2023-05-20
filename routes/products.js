@@ -8,7 +8,7 @@ const path = require('path')
 
 
 
-const { adminViewProducts, adminAddProduct, adminAddProductIn, adminEditProduct, adminDeleteProduct, adminEditProductIn } = require('../controllers/products')
+const { adminViewProducts, adminAddProduct, adminAddProductIn, adminEditProduct, adminDeleteProduct, adminEditProductIn } = require('../controllers/products-controler')
 
 
 router.get('/admin-viewProducts', adminViewProducts);

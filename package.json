@@ -30,6 +30,7 @@
     "readmore-js": "^2.2.1",
     "sharp": "^0.31.3",
     "sweetalert": "^2.1.2",
+    "sweetalert2": "^11.7.5",
     "twilio": "^4.11.0"
   },
   "devDependencies": {

@@ -9,7 +9,7 @@ const { adminSignup, adminLogin, userList, getCategory, addCategory, addCategory
     viewAdminBanners, addBanners, postBannerIn, geteditBannerPage, postEditBannerDetails, showCouponsPage, addCoupons, postCoupons,
     getOffersList, addCatgeoryOffer, admindeleteCoupon, getEditCouponPage, updateCoupon, adminDeleteOffer, deleteBanners,
     getAdminSalesReport, getAdminMonthlySalesReport, getAdminYearlySalesReport, getAdminDailySalesReport
-} = require('../controllers/admin')
+} = require('../controllers/admin-controler')
 
 
 router.get('/', adminSignup);

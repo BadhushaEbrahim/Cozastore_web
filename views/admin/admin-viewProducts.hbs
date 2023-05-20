@@ -41,10 +41,13 @@
         <td>
           <a href="/products/edit-product?id={{this._id}}" class="btn btn-primary">EDIT</a>
           <a href="/products/delete-product/{{this._id}}" class="btn btn-danger"
-            onclick="return confirm('ARE YOU SURE TO DELETE  {{this.name}}')">DELETE</a>
+            onclick="delete('{{this.name}}')">DELETE</a>
         </td>
       </tr>
       {{/each}}
     </tbody>
   </table>
+  <script>
+    
+  </script>
 </body>
