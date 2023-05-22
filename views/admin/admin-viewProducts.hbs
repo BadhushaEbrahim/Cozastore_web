@@ -1,11 +1,10 @@
-<script src="/node_modules/readmore-js/readmore.min.js"></script>
 
 <body>
   <br>
   <a href="/products/admin-addProduct"><button style="width:140px ;margin-left:50px" type="button"
       class="btn btn-primary">Add Products</button></a>
   <br>
-  <table class="table" id="userTable">
+  <table class="table display" id="userTable" style="width: auto;">
     <thead>
       <tr>
         <th scope="col">No</th>
@@ -41,13 +40,33 @@
         <td>
           <a href="/products/edit-product?id={{this._id}}" class="btn btn-primary">EDIT</a>
           <a href="/products/delete-product/{{this._id}}" class="btn btn-danger"
-            onclick="delete('{{this.name}}')">DELETE</a>
+            onclick="event.preventDefault(); deleteProduct('{{this._id}}', '{{this.name}}')">DELETE</a>
+
         </td>
       </tr>
       {{/each}}
     </tbody>
   </table>
+
   <script>
-    
+    function deleteProduct(productId, productName) {
+      swal({
+        title: "Are you sure?",
+        text: `Do you want to delete '${productName}'?`,
+        icon: "warning",
+        buttons: {
+          cancel: "No",
+          confirm: "Yes"
+        },
+        dangerMode: true,
+      })
+        .then((willDelete) => {
+          if (willDelete) {
+            window.location.href = "/products/delete-product/" + productId;
+          } else {
+            swal("Product not deleted.");
+          }
+        });
+    }
   </script>
 </body>

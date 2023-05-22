@@ -1,7 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Include Swal CSS and JavaScript -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.js"></script>
+</head>
 <body>
 
     <div class="registration-form">
-        <form action="/admin/admin-updateCoupon/{{coupons._id}}" method="post" >
+        <form action="/admin/admin-updateCoupon/{{coupons._id}}" method="post" id="couponForm">
             <h5 class="text-danger">ADD Coupons</h5>
           
             <div class="form-group">
@@ -9,31 +16,67 @@
                 <input type="text" class="form-control item" id="couponName" value="{{coupons.couponName}}" name="couponName" placeholder="Coupon Name">
             </div>
            
-          <div class="form-group">
+            <div class="form-group">
                 <label for="">Coupon Id</label>
                 <input type="text" class="form-control item" id="couponId" value="{{coupons.couponId}}" name="couponId" placeholder="Coupon-Id">
             </div>
+            
             <div class="form-group">
                 <label for="">Max Purchase Amount</label>
                 <input type="number" class="form-control item" name="maxdiscount" value="{{coupons.maxdiscount}}" placeholder="Coupon Max Amount">
             </div>
-             <div class="form-group">
+            
+            <div class="form-group">
                 <label for="">Min Purchase Amount</label>
                 <input type="number" class="form-control item" name="minAmount" value="{{coupons.minAmount}}" placeholder="Coupon Min Amount">
             </div>
-              <div class="form-group">
+            
+            <div class="form-group">
                 <label for="">Expiry Date</label>
-                <input type="date" class="form-control item" name="expDate" value="{{coupons.expDate}}"  placeholder="Coupon Expiry Date">
+                <input type="date" class="form-control item" name="expDate" value="{{coupons.expDate}}" placeholder="Coupon Expiry Date">
             </div>
-             <div class="form-group">
-                <label for="">Coupon Percentage </label>
-                <input type="percentage" class="form-control item" name="couponPercentage" value="{{coupons.couponPercentage}}" placeholder="Coupon Percentage">
+            
+            <div class="form-group">
+                <label for="">Coupon Percentage</label>
+                <input type="number" class="form-control item" name="couponPercentage" value="{{coupons.couponPercentage}}" placeholder="Coupon Percentage">
             </div>
-            <div class="form-group text-center ">
-                <button type="submit" onclick="return confirm('coupon updated')" class="btn btn-block  create-account">SAVE</button>
+            
+            <div class="form-group text-center">
+                <button type="submit" class="btn btn-block create-account">SAVE</button>
             </div>
         </form>
-
     </div>
 
+    <script>
+        // Function to validate the form
+        function validateForm(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get form values
+            var couponName = document.getElementById('couponName').value;
+            var couponId = document.getElementById('couponId').value;
+
+            // Perform validation (you can add more validation logic here)
+            if (couponName.trim() === '') {
+                Swal.fire('Error', 'Coupon Name is required', 'error');
+                return;
+            }
+
+            if (couponId.trim() === '') {
+                Swal.fire('Error', 'Coupon ID is required', 'error');
+                return;
+            }
+
+            // If form is valid, show success Swal and submit the form
+            Swal.fire('Success', 'Coupon updated', 'success').then(function() {
+                document.getElementById('couponForm').submit();
+            });
+        }
+
+        // Attach event listener to the form submit button
+        var submitButton = document.querySelector('#couponForm button[type="submit"]');
+        submitButton.addEventListener('click', validateForm);
+    </script>
+
 </body>
+</html>

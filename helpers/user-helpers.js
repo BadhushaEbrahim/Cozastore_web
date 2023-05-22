@@ -1,42 +1,42 @@
-var db = require('../config/connection');
-var collection = require('../config/collections');
-const bcrypt = require('bcrypt');
-var ObjectId = require('mongodb').ObjectId
-require('dotenv').config()
-const Client = require('twilio')(process.env.accoundSid, process.env.authToken)
-const moment = require("moment")
+var db = require("../config/connection");
+var collection = require("../config/collections");
+const bcrypt = require("bcrypt");
+var ObjectId = require("mongodb").ObjectId;
+require("dotenv").config();
+const Client = require("twilio")(process.env.accoundSid, process.env.authToken);
+const moment = require("moment");
 
-const Razorpay = require('razorpay');
-const { response } = require('express');
-
-
+const Razorpay = require("razorpay");
+const { response } = require("express");
 
 var instance = new Razorpay({
-  key_id: 'rzp_test_ow6sQKwWcM8BIK',
-  key_secret: 'HSVEmxaiCGgagQQe0oMx7whh',
+  key_id: "rzp_test_ow6sQKwWcM8BIK",
+  key_secret: "HSVEmxaiCGgagQQe0oMx7whh",
 });
 
 module.exports = {
-
   /* -------------------------------------------------------------------------- */
   /*                                 ADD USER(SIGNUP)                           */
   /* -------------------------------------------------------------------------- */
 
   usersSignup: (userData) => {
     return new Promise(async (resolve, reject) => {
-      let user = await db.get().collection(collection.USER_COLLECTION).findOne({ email: userData.email })
+      let user = await db
+        .get()
+        .collection(collection.USER_COLLECTION)
+        .findOne({ email: userData.email });
       if (user) {
-
-        resolve({ status: false })
+        resolve({ status: false });
+      } else {
+        userData.password = await bcrypt.hash(userData.password, 10);
+        db.get()
+          .collection(collection.USER_COLLECTION)
+          .insertOne(userData)
+          .then((data) => {
+            resolve({ status: true });
+          });
       }
-      else {
-        userData.password = await bcrypt.hash(userData.password, 10)
-        db.get().collection(collection.USER_COLLECTION).insertOne(userData).then((data) => {
-          resolve({ status: true })
-        })
-      }
-
-    })
+    });
   },
 
   /*--------------------------------------------------------------------------- */
@@ -46,110 +46,111 @@ module.exports = {
   usersLogin: (userData) => {
     return new Promise(async (resolve, reject) => {
       // let loginStatus=false;
-      let response = {}
-      let user = await db.get().collection(collection.USER_COLLECTION).findOne({ email: userData.email })
+      let response = {};
+      let user = await db
+        .get()
+        .collection(collection.USER_COLLECTION)
+        .findOne({ email: userData.email });
       if (user) {
         bcrypt.compare(userData.password, user.password).then((status) => {
           if (status) {
-
-            response.user = user
-            response.status = true
-            resolve(response)
+            response.user = user;
+            response.status = true;
+            resolve(response);
+          } else {
+            resolve({ status: false });
           }
-          else {
-            resolve({ status: false })
-          }
-        })
+        });
+      } else {
+        resolve({ status: false });
       }
-      else {
-        resolve({ status: false })
-      }
-    })
+    });
   },
 
   //----------------------------------------OTP SECTION-------------------------------------------
 
   doOTP: (userData) => {
-    let response = {}
+    let response = {};
     return new Promise(async (resolve, reject) => {
-      let user = await db.get().collection(collection.USER_COLLECTION).findOne({ phoneNumber: userData.phone })
+      let user = await db
+        .get()
+        .collection(collection.USER_COLLECTION)
+        .findOne({ phoneNumber: userData.phone });
       if (user) {
-        response.status = true
-        response.user = user
-        Client.verify.services(process.env.serviceId)
-          .verifications
-          .create({ to: `+91${userData.phone}`, channel: 'sms' })
-          .then((data) => {
-          });
-        resolve(response)
-      }
-      else {
+        response.status = true;
+        response.user = user;
+        Client.verify
+          .services(process.env.serviceId)
+          .verifications.create({ to: `+91${userData.phone}`, channel: "sms" })
+          .then((data) => {});
+        resolve(response);
+      } else {
         response.status = false;
-        resolve(response)
+        resolve(response);
       }
-    })
-
+    });
   },
 
   doOTPConfirm: (confirmotp, userData) => {
     return new Promise((resolve, reject) => {
-      Client.verify.services(process.env.serviceId)
-        .verificationChecks
-        .create({
+      Client.verify
+        .services(process.env.serviceId)
+        .verificationChecks.create({
           to: `+91${userData.phoneNumber}`,
-          code: confirmotp.phone
+          code: confirmotp.phone,
         })
         .then((data) => {
-          if (data.status == 'approved') {
-
-            resolve({ status: true })
+          if (data.status == "approved") {
+            resolve({ status: true });
           } else {
-            resolve({ status: false })
+            resolve({ status: false });
           }
-        })
-    })
+        });
+    });
   },
 
   /* -------------------------------------------------------------------------- */
   /*                         GET USER DETAILS                                   */
   /* -------------------------------------------------------------------------- */
-
 
   getUserDetails: (userId) => {
-    return new Promise(async(resolve, reject) => {
-    let userdetails = await db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(userId) })
-      resolve(userdetails)
-    })
-
+    return new Promise(async (resolve, reject) => {
+      let userdetails = await db
+        .get()
+        .collection(collection.USER_COLLECTION)
+        .findOne({ _id: ObjectId(userId) });
+      resolve(userdetails);
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                         GET USER DETAILS                                   */
   /* -------------------------------------------------------------------------- */
-
-
 
   addUserAddressIn: (deliveryAddress, userId) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.USER_COLLECTION).updateOne({ _id: (ObjectId(userId)) },
-        {
-          $set: {
-            shippingAddress: {
-              name: deliveryAddress.firstname,
-              phoneNumber: deliveryAddress.phonenumber,
-              deliveryAddress: deliveryAddress.address1,
-              city: deliveryAddress.city,
-              state: deliveryAddress.state,
-              postCode: deliveryAddress.postcode,
-              country: deliveryAddress.country
-
-            }
+      db.get()
+        .collection(collection.USER_COLLECTION)
+        .updateOne(
+          { _id: ObjectId(userId) },
+          {
+            $set: {
+              shippingAddress: {
+                name: deliveryAddress.firstname,
+                phoneNumber: deliveryAddress.phonenumber,
+                deliveryAddress: deliveryAddress.address1,
+                city: deliveryAddress.city,
+                state: deliveryAddress.state,
+                postCode: deliveryAddress.postcode,
+                country: deliveryAddress.country,
+              },
+            },
           }
-        }).then((response) => {
-          resolve(response)
-        })
-    })
+        )
+        .then((response) => {
+          resolve(response);
+        });
+    });
   },
 
   /* -------------------------------------------------------------------------- */
@@ -158,80 +159,85 @@ module.exports = {
 
   editUserAddress: (Id, userId) => {
     return new Promise(async (resolve, reject) => {
-      let data = await db.get().collection(collection.ADDRESS_COLLECTION).findOne({ $and: [{ user: ObjectId(userId) }, { id: Id }] })
-      resolve(data)
-    })
+      let data = await db
+        .get()
+        .collection(collection.ADDRESS_COLLECTION)
+        .findOne({ $and: [{ user: ObjectId(userId) }, { id: Id }] });
+      resolve(data);
+    });
   },
-
-
 
   /* -------------------------------------------------------------------------- */
   /*                POST EDIT USER ADDRESS IN PROFILE                           */
   /* -------------------------------------------------------------------------- */
 
-
   postEditUserAddress: (details, userId, id) => {
     return new Promise(async (resolve, reject) => {
-      let data = await db.get().collection(collection.ADDRESS_COLLECTION).updateOne({ user: ObjectId(userId), id: id },
-        {
-          $set: {
-            name: details.name,
-            address: details.address,
-            number: details.mobileNumber,
-            pincode: details.pincode,
-            state: details.state,
-            city: details.city,
-            country: details.country
-
+      let data = await db
+        .get()
+        .collection(collection.ADDRESS_COLLECTION)
+        .updateOne(
+          { user: ObjectId(userId), id: id },
+          {
+            $set: {
+              name: details.name,
+              address: details.address,
+              number: details.mobileNumber,
+              pincode: details.pincode,
+              state: details.state,
+              city: details.city,
+              country: details.country,
+            },
           }
-        })
-      resolve(data)
-    })
+        );
+      resolve(data);
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                         DELETE USER ADDRESS                                */
   /* -------------------------------------------------------------------------- */
 
-
   deleteAddress: (userId, Id) => {
     return new Promise(async (resolve, reject) => {
-      await db.get().collection(collection.ADDRESS_COLLECTION).deleteOne({ user: ObjectId(userId), id: Id }).
-        then((response) => {
-          resolve(response)
-        })
-    })
+      await db
+        .get()
+        .collection(collection.ADDRESS_COLLECTION)
+        .deleteOne({ user: ObjectId(userId), id: Id })
+        .then((response) => {
+          resolve(response);
+        });
+    });
   },
 
   /* -------------------------------------------------------------------------- */
   /*                  PROCEED TO CHEKOUT DELIVERY ADDRESS                       */
   /* -------------------------------------------------------------------------- */
 
-
-
   addAddress: (userId, details) => {
     return new Promise((resolve, reject) => {
       let tempId = moment().format().toString();
-      tempId.replace(/\s+/g, ' ').trim()
+      tempId.replace(/\s+/g, " ").trim();
 
-      let date = new Date()
+      let date = new Date();
 
-      let address = db.get().collection(collection.ADDRESS_COLLECTION).insertOne({
-        user: ObjectId(userId),
-        name: details.name,
-        address: details.address,
-        pincode: details.pincode,
-        number: details.mobileNumber,
-        state: details.state,
-        city: details.city,
-        country: details.country,
-        id: tempId
-      })
-      resolve(address)
-    })
+      let address = db
+        .get()
+        .collection(collection.ADDRESS_COLLECTION)
+        .insertOne({
+          user: ObjectId(userId),
+          name: details.name,
+          address: details.address,
+          pincode: details.pincode,
+          number: details.mobileNumber,
+          state: details.state,
+          city: details.city,
+          country: details.country,
+          id: tempId,
+        });
+      resolve(address);
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                        GET ADDRESS IN CHEKOUT PAGE                         */
@@ -239,35 +245,40 @@ module.exports = {
 
   getShippingAddress: (userId) => {
     return new Promise(async (resolve, reject) => {
-      let data = await db.get().collection(collection.ADDRESS_COLLECTION).find({ user: ObjectId(userId) }).toArray()
-      resolve(data)
-    })
+      let data = await db
+        .get()
+        .collection(collection.ADDRESS_COLLECTION)
+        .find({ user: ObjectId(userId) })
+        .toArray();
+      resolve(data);
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                         UPDATE USER PROFILE DETAILS                        */
   /* -------------------------------------------------------------------------- */
 
-
   updateUserProfile: (userId, userDetails) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.USER_COLLECTION).updateOne({ _id: ObjectId(userId) },
-        {
-          $set: {
-            userName: userDetails.userName,
-            name: userDetails.name,
-            lname: userDetails.lname,
-            phoneNumber: userDetails.phoneNumber,
-            email: userDetails.email
+      db.get()
+        .collection(collection.USER_COLLECTION)
+        .updateOne(
+          { _id: ObjectId(userId) },
+          {
+            $set: {
+              userName: userDetails.userName,
+              name: userDetails.name,
+              lname: userDetails.lname,
+              phoneNumber: userDetails.phoneNumber,
+              email: userDetails.email,
+            },
           }
-        }).then((response) => {
-
-          resolve(response)
-        })
-    })
+        )
+        .then((response) => {
+          resolve(response);
+        });
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                         USER SIDE GET ALL PRODUCTS                         */
@@ -275,26 +286,29 @@ module.exports = {
 
   getAllProducts: () => {
     return new Promise(async (resolve, reject) => {
-      let products = await db.get().collection(collection.PRODUCT_COLLECTION).find().toArray()
-      resolve(products)
-    })
+      let products = await db
+        .get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .find()
+        .toArray();
+      resolve(products);
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                        LIST BANNERS IN INDEX PAGE                          */
   /* -------------------------------------------------------------------------- */
 
-
-
   getAllBanners: () => {
     return new Promise(async (resolve, reject) => {
-      let banners = await db.get().collection(collection.BANNER_COLLECTION).find().toArray()
-      resolve(banners)
-    })
+      let banners = await db
+        .get()
+        .collection(collection.BANNER_COLLECTION)
+        .find()
+        .toArray();
+      resolve(banners);
+    });
   },
-
-
 
   /* -------------------------------------------------------------------------- */
   /*                         LIST ALL CATEGORIS                                */
@@ -302,108 +316,128 @@ module.exports = {
 
   getAllcategories: () => {
     return new Promise(async (resolve, reject) => {
-      const categories = await db.get().collection(collection.CATEGORY_COLLECTION).find().toArray()
-      resolve(categories)
-    })
+      const categories = await db
+        .get()
+        .collection(collection.CATEGORY_COLLECTION)
+        .find()
+        .toArray();
+      resolve(categories);
+    });
   },
 
   /* -------------------------------------------------------------------------- */
   /*                        PRODUCT ADDED TO CART                               */
   /* -------------------------------------------------------------------------- */
 
-
-
   productAddToCart: (productId, userId) => {
-
     return new Promise(async (resolve, reject) => {
-      let details = await db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: ObjectId(productId) }, { projection: { name: 1, stock: 1, category: 1, price: 1 } })
+      let details = await db
+        .get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .findOne(
+          { _id: ObjectId(productId) },
+          { projection: { name: 1, stock: 1, category: 1, price: 1 } }
+        );
       let productObj = {
         item: ObjectId(productId),
         quantity: 1,
         price: details.price,
         productName: details.name,
-        category: details.category
-      }
-      let userCart = await db.get().collection(collection.CART_COLLECTION).findOne({ user: ObjectId(userId) })
+        category: details.category,
+      };
+      let userCart = await db
+        .get()
+        .collection(collection.CART_COLLECTION)
+        .findOne({ user: ObjectId(userId) });
       if (userCart) {
-
-        let productExist = userCart.products.findIndex(product => product.item == productId)
+        let productExist = userCart.products.findIndex(
+          (product) => product.item == productId
+        );
         if (productExist != -1) {
-          db.get().collection(collection.CART_COLLECTION)
-            .updateOne({ user: ObjectId(userId), 'products.item': ObjectId(productId) },
+          db.get()
+            .collection(collection.CART_COLLECTION)
+            .updateOne(
+              { user: ObjectId(userId), "products.item": ObjectId(productId) },
               {
-                $inc: { 'products.$.quantity': 1 }
+                $inc: { "products.$.quantity": 1 },
               }
-            ).then(() => {
-              resolve()
-            })
+            )
+            .then(() => {
+              resolve();
+            });
         } else {
-          db.get().collection(collection.CART_COLLECTION).updateOne({ user: ObjectId(userId) },
-            {
-
-              $push: { products: productObj }
-
-            }).then((response) => {
-              resolve()
-            })
+          db.get()
+            .collection(collection.CART_COLLECTION)
+            .updateOne(
+              { user: ObjectId(userId) },
+              {
+                $push: { products: productObj },
+              }
+            )
+            .then((response) => {
+              resolve();
+            });
         }
-
       } else {
         let cartObj = {
           user: ObjectId(userId),
-          products: [productObj]
-        }
-        db.get().collection(collection.CART_COLLECTION).insertOne(cartObj).then((response) => {
-          resolve()
-        })
+          products: [productObj],
+        };
+        db.get()
+          .collection(collection.CART_COLLECTION)
+          .insertOne(cartObj)
+          .then((response) => {
+            resolve();
+          });
       }
-    })
+    });
   },
 
   /* -------------------------------------------------------------------------- */
   /*                         GET CART  PRODUCTS                                 */
   /* -------------------------------------------------------------------------- */
 
-
   getCartProducts: (userId) => {
     return new Promise(async (resolve, reject) => {
-      let cartItems = await db.get().collection(collection.CART_COLLECTION).aggregate([
-        {
-          $match: { user: ObjectId(userId) }
-        },
-        {
-          $unwind: '$products'
-        }, {
-          $project: {
-            item: '$products.item',
-            quantity: '$products.quantity',
+      let cartItems = await db
+        .get()
+        .collection(collection.CART_COLLECTION)
+        .aggregate([
+          {
+            $match: { user: ObjectId(userId) },
+          },
+          {
+            $unwind: "$products",
+          },
+          {
+            $project: {
+              item: "$products.item",
+              quantity: "$products.quantity",
+            },
+          },
+          {
+            $lookup: {
+              from: collection.PRODUCT_COLLECTION,
+              localField: "item",
+              foreignField: "_id",
+              as: "product",
+            },
+          },
+          {
+            $project: {
+              item: 1,
+              quantity: 1,
 
-          }
-        },
-        {
-          $lookup: {
-            from: collection.PRODUCT_COLLECTION,
-            localField: 'item',
-            foreignField: '_id',
-            as: 'product'
-          }
-        },
-        {
-          $project: {
-            item: 1,
-            quantity: 1,
-
-            product: {
-              $arrayElemAt: ['$product', 0]
-            }
-          }
-        }
-
-      ]).toArray()
-      resolve(cartItems)
-    })
+              product: {
+                $arrayElemAt: ["$product", 0],
+              },
+            },
+          },
+        ])
+        .toArray();
+      resolve(cartItems);
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                         GET CART  COUNT                                    */
@@ -412,63 +446,62 @@ module.exports = {
   getCartCount: (userId) => {
     return new Promise(async (resolve, reject) => {
       let count = 0;
-      let cart = await db.get().collection(collection.CART_COLLECTION).findOne({ user: ObjectId(userId) })
+      let cart = await db
+        .get()
+        .collection(collection.CART_COLLECTION)
+        .findOne({ user: ObjectId(userId) });
       if (cart) {
-        count = cart.products.length
+        count = cart.products.length;
       }
-      resolve(count)
-    })
+      resolve(count);
+    });
   },
-
-
 
   /* -------------------------------------------------------------------------- */
   /*                         GET WISHLIST PRODUCTS                              */
   /* -------------------------------------------------------------------------- */
 
-
-
   getWishListProducts: (userId) => {
     return new Promise(async (resolve, reject) => {
-      let wishlistItems = await db.get().collection(collection.WISHLIST_COLLECTION).aggregate([
-        {
-          $match: { user: ObjectId(userId) }
-        },
-        {
-          $unwind: '$products'
-        }, {
-          $project: {
-            item: '$products.item',
-            quantity: '$products.quantity',
+      let wishlistItems = await db
+        .get()
+        .collection(collection.WISHLIST_COLLECTION)
+        .aggregate([
+          {
+            $match: { user: ObjectId(userId) },
+          },
+          {
+            $unwind: "$products",
+          },
+          {
+            $project: {
+              item: "$products.item",
+              quantity: "$products.quantity",
+            },
+          },
+          {
+            $lookup: {
+              from: collection.PRODUCT_COLLECTION,
+              localField: "item",
+              foreignField: "_id",
+              as: "product",
+            },
+          },
+          {
+            $project: {
+              item: 1,
+              quantity: 1,
 
-          }
-        },
-        {
-          $lookup: {
-            from: collection.PRODUCT_COLLECTION,
-            localField: 'item',
-            foreignField: '_id',
-            as: 'product'
-          }
-        },
-        {
-          $project: {
-            item: 1,
-            quantity: 1,
-
-            product: {
-              $arrayElemAt: ['$product', 0]
-            }
-          }
-        }
-
-      ]).toArray()
-      resolve(wishlistItems)
-    })
-
+              product: {
+                $arrayElemAt: ["$product", 0],
+              },
+            },
+          },
+        ])
+        .toArray();
+      resolve(wishlistItems);
+    });
   },
-
-
 
   /* -------------------------------------------------------------------------- */
   /*                         GET WISHLIST COUNT                                    */
@@ -477,155 +510,172 @@ module.exports = {
   getWishlistCount: (userId) => {
     return new Promise(async (resolve, reject) => {
       let count = 0;
-      let wishList = await db.get().collection(collection.WISHLIST_COLLECTION).findOne({ user: ObjectId(userId) })
+      let wishList = await db
+        .get()
+        .collection(collection.WISHLIST_COLLECTION)
+        .findOne({ user: ObjectId(userId) });
       if (wishList) {
-        count = wishList.products.length
+        count = wishList.products.length;
       }
-      resolve(count)
-    })
+      resolve(count);
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                    REMOVE PRODUCT FROM WISHLIST                            */
   /* -------------------------------------------------------------------------- */
 
-
-
   removeWishlistProduct: (details) => {
     return new Promise(async (resolve, reject) => {
-
-      db.get().collection(collection.WISHLIST_COLLECTION).updateOne({ _id: ObjectId(details.wishListId) },
-        {
-          $pull: {
-            products: { item: ObjectId(details.productId) }
+      db.get()
+        .collection(collection.WISHLIST_COLLECTION)
+        .updateOne(
+          { _id: ObjectId(details.wishListId) },
+          {
+            $pull: {
+              products: { item: ObjectId(details.productId) },
+            },
           }
-        }).then((response) => {
-
-          resolve(response)
-        })
-    })
+        )
+        .then((response) => {
+          resolve(response);
+        });
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                    REMOVE PRODUCT FROM CART                                */
   /* -------------------------------------------------------------------------- */
 
-
   removeCartProduct: (details) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.CART_COLLECTION).updateOne({ _id: ObjectId(details.cartId) },
-        {
-          $pull: {
-            products: { item: ObjectId(details.productId) }
+      db.get()
+        .collection(collection.CART_COLLECTION)
+        .updateOne(
+          { _id: ObjectId(details.cartId) },
+          {
+            $pull: {
+              products: { item: ObjectId(details.productId) },
+            },
           }
-        }).then((response) => {
-          resolve(response)
-        })
-    })
+        )
+        .then((response) => {
+          resolve(response);
+        });
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                         CHANGE PRODUCT QUANTITY                             */
   /* -------------------------------------------------------------------------- */
 
   changeProductsQuantity: (details) => {
-    details.count = parseInt(details.count)
-    details.quantity = parseInt(details.quantity)
+    details.count = parseInt(details.count);
+    details.quantity = parseInt(details.quantity);
     return new Promise((resolve, reject) => {
       if (details.count == -1 && details.quantity == 1) {
-        db.get().collection(collection.CART_COLLECTION)
-          .updateOne({ _id: ObjectId(details.cart) },
+        db.get()
+          .collection(collection.CART_COLLECTION)
+          .updateOne(
+            { _id: ObjectId(details.cart) },
             {
-              $pull: { products: { item: ObjectId(details.product) } }
+              $pull: { products: { item: ObjectId(details.product) } },
             }
-          ).then((response) => {
-            resolve({ removeProduct: true })
-          })
+          )
+          .then((response) => {
+            resolve({ removeProduct: true });
+          });
       } else {
-
-        db.get().collection(collection.CART_COLLECTION)
-          .updateOne({ _id: ObjectId(details.cart), 'products.item': ObjectId(details.product) },
+        db.get()
+          .collection(collection.CART_COLLECTION)
+          .updateOne(
             {
-              $inc: { 'products.$.quantity': details.count }
+              _id: ObjectId(details.cart),
+              "products.item": ObjectId(details.product),
+            },
+            {
+              $inc: { "products.$.quantity": details.count },
             }
-          ).then((response) => {
-
-            resolve({ status: true })
-
-          })
-
+          )
+          .then((response) => {
+            resolve({ status: true });
+          });
       }
-
-
-    })
+    });
   },
-
 
   deleteCartProduct: (productId) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.CART_COLLECTION).deleteOne({ _id: ObjectId(productId) }).then((response) => {
-        resolve(response)
-      })
-    })
+      db.get()
+        .collection(collection.CART_COLLECTION)
+        .deleteOne({ _id: ObjectId(productId) })
+        .then((response) => {
+          resolve(response);
+        });
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                         ADD TO WISHLIST                                   */
   /* -------------------------------------------------------------------------- */
 
-
-
-
   addProductToWishList: (productId, userId) => {
     return new Promise(async (resolve, reject) => {
-      let details = await db.get().collection(collection.WISHLIST_COLLECTION).findOne({ _id: ObjectId(productId) });
+      let details = await db
+        .get()
+        .collection(collection.WISHLIST_COLLECTION)
+        .findOne({ _id: ObjectId(productId) });
       let productObj = {
         item: ObjectId(productId),
         quantity: 1,
+      };
 
-      }
-
-      let userWishList = await db.get().collection(collection.WISHLIST_COLLECTION).findOne({ user: ObjectId(userId) })
+      let userWishList = await db
+        .get()
+        .collection(collection.WISHLIST_COLLECTION)
+        .findOne({ user: ObjectId(userId) });
       if (userWishList) {
-        let productExist = userWishList.products.findIndex(product => product.item == productId);
+        let productExist = userWishList.products.findIndex(
+          (product) => product.item == productId
+        );
         if (productExist != -1) {
-          db.get().collection(collection.WISHLIST_COLLECTION)
-            .updateOne({ user: ObjectId(userId), 'products.item': ObjectId(productId) },
+          db.get()
+            .collection(collection.WISHLIST_COLLECTION)
+            .updateOne(
+              { user: ObjectId(userId), "products.item": ObjectId(productId) },
               {
-                $inc: { 'products.$.quantity': 1 }
+                $inc: { "products.$.quantity": 1 },
               }
-            ).then(() => {
-              resolve()
-            })
+            )
+            .then(() => {
+              resolve();
+            });
         } else {
-          db.get().collection(collection.WISHLIST_COLLECTION).updateOne({ user: ObjectId(userId) },
-            {
-
-              $push: { products: productObj }
-
-            }).then((response) => {
-              resolve()
-            })
+          db.get()
+            .collection(collection.WISHLIST_COLLECTION)
+            .updateOne(
+              { user: ObjectId(userId) },
+              {
+                $push: { products: productObj },
+              }
+            )
+            .then((response) => {
+              resolve();
+            });
         }
-
       } else {
         let prodOBJ = {
           user: ObjectId(userId),
-          products: [productObj]
-        }
-        db.get().collection(collection.WISHLIST_COLLECTION).insertOne(prodOBJ).then((response) => {
-          resolve()
-        })
+          products: [productObj],
+        };
+        db.get()
+          .collection(collection.WISHLIST_COLLECTION)
+          .insertOne(prodOBJ)
+          .then((response) => {
+            resolve();
+          });
       }
-
-
-
-
-    })
+    });
   },
 
   /* -------------------------------------------------------------------------- */
@@ -633,89 +683,96 @@ module.exports = {
   /* -------------------------------------------------------------------------- */
 
   getTotalAmount: (userId) => {
-
     return new Promise(async (resolve, reject) => {
-      let total = await db.get().collection(collection.CART_COLLECTION).aggregate([
-        {
-          $match: { user: ObjectId(userId) }
-        },
-        {
-          $unwind: '$products'
-        }, {
-          $project: {
-            item: '$products.item',
-            quantity: '$products.quantity'
-          }
-        },
-        {
-          $lookup: {
-            from: collection.PRODUCT_COLLECTION,
-            localField: 'item',
-            foreignField: '_id',
-            as: 'product'
-          }
-        },
-        {
-          $project: {
-            item: 1,
-            quantity: 1,
-            product: {
-              $arrayElemAt: ['$product', 0]
-            }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: { $multiply: ['$quantity', { '$toInt': '$product.price' }] } }
-          }
-        }
-
-      ]).toArray()
-      resolve(total[0]?.total)
-    })
-
+      let total = await db
+        .get()
+        .collection(collection.CART_COLLECTION)
+        .aggregate([
+          {
+            $match: { user: ObjectId(userId) },
+          },
+          {
+            $unwind: "$products",
+          },
+          {
+            $project: {
+              item: "$products.item",
+              quantity: "$products.quantity",
+            },
+          },
+          {
+            $lookup: {
+              from: collection.PRODUCT_COLLECTION,
+              localField: "item",
+              foreignField: "_id",
+              as: "product",
+            },
+          },
+          {
+            $project: {
+              item: 1,
+              quantity: 1,
+              product: {
+                $arrayElemAt: ["$product", 0],
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              total: {
+                $sum: {
+                  $multiply: ["$quantity", { $toInt: "$product.price" }],
+                },
+              },
+            },
+          },
+        ])
+        .toArray();
+      resolve(total[0]?.total);
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                GET USER ADDRESS AT TEH TIME OF CHEKOUT                     */
   /* -------------------------------------------------------------------------- */
 
-
-
   getUserAddress: (userId) => {
     return new Promise(async (resolve, reject) => {
-
-      let alladdress = await db.get().collection(collection.USER_COLLECTION).aggregate([
-        {
-          $match: { _id: ObjectId(userId) }
-        },
-        {
-          $unwind: '$address'
-        },
-        {
-          $project: {
-            _id: 0,
-            address: '$address'
-          }
-        }
-      ]).toArray()
-      resolve(alladdress)
-    })
+      let alladdress = await db
+        .get()
+        .collection(collection.USER_COLLECTION)
+        .aggregate([
+          {
+            $match: { _id: ObjectId(userId) },
+          },
+          {
+            $unwind: "$address",
+          },
+          {
+            $project: {
+              _id: 0,
+              address: "$address",
+            },
+          },
+        ])
+        .toArray();
+      resolve(alladdress);
+    });
   },
 
   ////////////////////////////---------------------------QUERY FOR GETTING PRICE------------------------------//////////////////////////////
 
   getProductPrice: (userId) => {
     return new Promise(async (resolve, reject) => {
+      let price = await db
+        .get()
+        .collection(collection.CART_COLLECTION)
+        .findOne({ _id: ObjectId(userId) });
 
-      let price = await db.get().collection(collection.CART_COLLECTION).findOne({ _id: ObjectId(userId) })
-
-      resolve(price)
-    })
+      resolve(price);
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                         PLACE ORDER                                        */
@@ -723,44 +780,50 @@ module.exports = {
 
   placeOrder: (order, products, totalPrice, user) => {
     return new Promise(async (resolve, reject) => {
-
-      let status = order['paymentMethod'] === 'COD' ? 'Placed' : 'Pending';
-      products.forEach(products => {
+      let status = order["paymentMethod"] === "COD" ? "Placed" : "Pending";
+      products.forEach((products) => {
         products.status = status;
       });
       let orderObj = {
-        deliveryDetails: ObjectId(order['payment-address']),
+        deliveryDetails: ObjectId(order["payment-address"]),
         userId: ObjectId(order.userId),
-        paymentMethod: order['paymentMethod'],
+        paymentMethod: order["paymentMethod"],
         products: products,
         totalAmount: totalPrice,
         date: new Date(),
 
-        orderDate: moment().format('YYYY-MM-D'),
-        orderMonth: moment().format('YYYY-MM'),
-        orderYear: moment().format('YYYY'),
-        status: status
-      }
+        orderDate: moment().format("YYYY-MM-D"),
+        orderMonth: moment().format("YYYY-MM"),
+        orderYear: moment().format("YYYY"),
+        status: status,
+      };
       if (order.couponcode) {
-
-        await db.get().collection(collection.COUPON_COLLECTION).updateOne({ couponId: order.couponcode },
-          {
-            $push: {
-              Users: ObjectId(order.userId)
+        await db
+          .get()
+          .collection(collection.COUPON_COLLECTION)
+          .updateOne(
+            { couponId: order.couponcode },
+            {
+              $push: {
+                Users: ObjectId(order.userId),
+              },
             }
-          })
-
+          );
       }
 
-      db.get().collection(collection.ORDER_COLLECTION).insertOne(orderObj).then((response) => {
-        if (status == 'Placed') {
-          db.get().collection(collection.CART_COLLECTION).deleteOne({ user: ObjectId(order.userId) })
-        }
-        resolve(response.insertedId)
-      })
-    })
+      db.get()
+        .collection(collection.ORDER_COLLECTION)
+        .insertOne(orderObj)
+        .then((response) => {
+          if (status == "Placed") {
+            db.get()
+              .collection(collection.CART_COLLECTION)
+              .deleteOne({ user: ObjectId(order.userId) });
+          }
+          resolve(response.insertedId);
+        });
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                      GET CART  PRODUCTS LIST                                */
@@ -768,55 +831,58 @@ module.exports = {
 
   getCartProductList: (userId) => {
     return new Promise(async (resolve, reject) => {
-      let cart = await db.get().collection(collection.CART_COLLECTION).findOne({ user: ObjectId(userId) })
-      resolve(cart.products)
-    })
+      let cart = await db
+        .get()
+        .collection(collection.CART_COLLECTION)
+        .findOne({ user: ObjectId(userId) });
+      resolve(cart.products);
+    });
   },
 
   /* -------------------------------------------------------------------------- */
   /*                         GET ALL ORDERS                                     */
   /* -------------------------------------------------------------------------- */
 
-
   getUserOrders: (userId) => {
     return new Promise(async (resolve, reject) => {
-      let orders = await db.get().collection(collection.ORDER_COLLECTION).aggregate([
-        {
-          $match: { userId: ObjectId(userId) }
-        },
-        {
-          $lookup: {
-            from: collection.ADDRESS_COLLECTION,
-            localField: 'deliveryDetails',
-            foreignField: '_id',
-            as: 'address'
-          }
-        },
-        {
-          $unwind: '$address'
-        },
-        {
-          $sort: {
-            date: 1
-          }
-        },
-        {
-          $project: {
-            date: 1,
-            totalAmount: 1,
-            products: 1,
-            paymentMethod: 1,
-            address: 1,
-            status: 1
-          }
-        }
-      ]).toArray()
-      resolve(orders)
-    })
+      let orders = await db
+        .get()
+        .collection(collection.ORDER_COLLECTION)
+        .aggregate([
+          {
+            $match: { userId: ObjectId(userId) },
+          },
+          {
+            $lookup: {
+              from: collection.ADDRESS_COLLECTION,
+              localField: "deliveryDetails",
+              foreignField: "_id",
+              as: "address",
+            },
+          },
+          {
+            $unwind: "$address",
+          },
+          {
+            $sort: {
+              date: 1,
+            },
+          },
+          {
+            $project: {
+              date: 1,
+              totalAmount: 1,
+              products: 1,
+              paymentMethod: 1,
+              address: 1,
+              status: 1,
+            },
+          },
+        ])
+        .toArray();
+      resolve(orders);
+    });
   },
-
-
-
 
   /* -------------------------------------------------------------------------- */
   /*                                CANCEL ORDERS                               */
@@ -824,65 +890,66 @@ module.exports = {
 
   updateUserOrderStatus: (cancelUserId) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.ORDER_COLLECTION).updateOne({ _id: ObjectId(cancelUserId) },
-        {
-          $set: { status: 'canceled', Cancel: true }
-        })
+      db.get()
+        .collection(collection.ORDER_COLLECTION)
+        .updateOne(
+          { _id: ObjectId(cancelUserId) },
+          {
+            $set: { status: "canceled", Cancel: true },
+          }
+        );
     }).then((response) => {
-      resolve()
-    })
+      resolve();
+    });
   },
-
-
-
-
-
-
 
   /* -------------------------------------------------------------------------- */
   /*                               ORDERED PRODUCTS                              */
   /* -------------------------------------------------------------------------- */
 
-
   getOrderdProducts: (orderId) => {
     return new Promise(async (resolve, reject) => {
-      let orderedItems = await db.get().collection(collection.ORDER_COLLECTION).aggregate([
-        {
-          $match: { _id: ObjectId(orderId) }
-        },
-        {
-          $unwind: '$products'
-        },
-        {
-          $project: {
-            item: '$products.item',
-            quantity: '$products.quantity',
-            status: '$products.status',
-            cancelled: '$products.cancelled',
-          }
-        },
-        {
-          $lookup: {
-            from: collection.PRODUCT_COLLECTION,
-            localField: 'item',
-            foreignField: '_id',
-            as: 'product'
-          }
-        },
-        {
-          $project: {
-            item: 1,
-            quantity: 1,
-            status: 1,
-            cancelled: 1,
-            product: {
-              $arrayElemAt: ['$product', 0]
-            }
-          }
-        }
-      ]).toArray()
-      resolve(orderedItems)
-    })
+      let orderedItems = await db
+        .get()
+        .collection(collection.ORDER_COLLECTION)
+        .aggregate([
+          {
+            $match: { _id: ObjectId(orderId) },
+          },
+          {
+            $unwind: "$products",
+          },
+          {
+            $project: {
+              item: "$products.item",
+              quantity: "$products.quantity",
+              status: "$products.status",
+              cancelled: "$products.cancelled",
+            },
+          },
+          {
+            $lookup: {
+              from: collection.PRODUCT_COLLECTION,
+              localField: "item",
+              foreignField: "_id",
+              as: "product",
+            },
+          },
+          {
+            $project: {
+              item: 1,
+              quantity: 1,
+              status: 1,
+              cancelled: 1,
+              product: {
+                $arrayElemAt: ["$product", 0],
+              },
+            },
+          },
+        ])
+        .toArray();
+      resolve(orderedItems);
+    });
   },
 
   /* -------------------------------------------------------------------------- */
@@ -891,15 +958,19 @@ module.exports = {
 
   setEachProductStatus: (status, orderId, productId) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.ORDER_COLLECTION).updateOne({ _id: ObjectId(orderId), "products.item": ObjectId(productId) },
-        {
-          $set: {
-            "products.$.status": status,
-            "products.$.cancelled": true,
+      db.get()
+        .collection(collection.ORDER_COLLECTION)
+        .updateOne(
+          { _id: ObjectId(orderId), "products.item": ObjectId(productId) },
+          {
+            $set: {
+              "products.$.status": status,
+              "products.$.cancelled": true,
+            },
           }
-        })
-      resolve(true)
-    })
+        );
+      resolve(true);
+    });
   },
 
   /* -------------------------------------------------------------------------- */
@@ -911,19 +982,15 @@ module.exports = {
       var options = {
         amount: total * 100,
         currency: "INR",
-        receipt: "" + orderId
+        receipt: "" + orderId,
       };
       instance.orders.create(options, function (err, order) {
         if (err) {
-
+        } else {
+          resolve(order);
         }
-        else {
-          resolve(order)
-        }
-
       });
-
-    })
+    });
   },
 
   /* -------------------------------------------------------------------------- */
@@ -933,24 +1000,25 @@ module.exports = {
   verifyPayment: (details) => {
     try {
       return new Promise((resolve, reject) => {
-        const crypto = require('crypto');
-        let hmac = crypto.createHmac('sha256', 'HSVEmxaiCGgagQQe0oMx7whh');
+        const crypto = require("crypto");
+        let hmac = crypto.createHmac("sha256", "HSVEmxaiCGgagQQe0oMx7whh");
 
-        hmac.update(details['payment[razorpay_order_id]'] + '|' + details['payment[razorpay_payment_id]']);
-        hmac = hmac.digest('hex')
-        if (hmac == details['payment[razorpay_signature]']) {
-          resolve()
+        hmac.update(
+          details["payment[razorpay_order_id]"] +
+            "|" +
+            details["payment[razorpay_payment_id]"]
+        );
+        hmac = hmac.digest("hex");
+        if (hmac == details["payment[razorpay_signature]"]) {
+          resolve();
         } else {
-          reject()
+          reject();
         }
-      })
+      });
     } catch (error) {
-      response.render('404', { layout: null })
+      response.render("404", { layout: null });
     }
-
   },
-
-
 
   /* -------------------------------------------------------------------------- */
   /*                         SET PAYMENT STATUS                                 */
@@ -958,155 +1026,150 @@ module.exports = {
 
   changePaymentStatus: (orderId) => {
     return new Promise(async (resolve, reject) => {
-      let order = await db.get().collection(collection.ORDER_COLLECTION).findOne({ _id: ObjectId(orderId) })
-      db.get().collection(collection.ORDER_COLLECTION).updateOne({ _id: ObjectId(orderId), "products.status": 'Pending' },
-        {
-          $set: {
-            'products.$[].status': 'Placed'
+      let order = await db
+        .get()
+        .collection(collection.ORDER_COLLECTION)
+        .findOne({ _id: ObjectId(orderId) });
+      db.get()
+        .collection(collection.ORDER_COLLECTION)
+        .updateOne(
+          { _id: ObjectId(orderId), "products.status": "Pending" },
+          {
+            $set: {
+              "products.$[].status": "Placed",
+            },
           }
-        }
-      ).then(() => {
-        db.get().collection(collection.CART_COLLECTION).deleteOne({ user: ObjectId(order.userId) })
-        resolve()
-      })
-    })
+        )
+        .then(() => {
+          db.get()
+            .collection(collection.CART_COLLECTION)
+            .deleteOne({ user: ObjectId(order.userId) });
+          resolve();
+        });
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                        DELETE PENDING ORDER                                    */
   /* -------------------------------------------------------------------------- */
 
-
-
   deletePendingOrder: (orderId) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.ORDER_COLLECTION).deleteOne({ _id: ObjectId(orderId) });
-      resolve()
-    })
+      db.get()
+        .collection(collection.ORDER_COLLECTION)
+        .deleteOne({ _id: ObjectId(orderId) });
+      resolve();
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                         COUPON APPLY                                       */
   /* -------------------------------------------------------------------------- */
 
-
   applyCoupon: (details, userId, date, totalAmount) => {
     try {
       return new Promise(async (resolve, reject) => {
         let response = {};
-
-        let coupon = await db.get().collection(collection.COUPON_COLLECTION).findOne({ couponId: details.coupon });
+        let coupon = await db
+          .get()
+          .collection(collection.COUPON_COLLECTION)
+          .findOne({ couponId: details.coupon });
         if (coupon) {
-
-          const expDate = new Date(coupon.expDate)
-
+          const expDate = new Date(coupon.expDate);
           response.couponData = coupon;
-
-
-          let user = await db.get().collection(collection.COUPON_COLLECTION).findOne({ couponId: details.coupon, Users: ObjectId(userId) })
-
+          let user = await db
+            .get()
+            .collection(collection.COUPON_COLLECTION)
+            .findOne({ couponId: details.coupon, Users: ObjectId(userId) });
           if (user) {
-
-            response.used = "Coupon Already Applied"
-            resolve(response)
-
-
+            response.used = "Coupon Already Applied";
+            resolve(response);
           } else {
-
             if (date <= expDate) {
-
               response.dateValid = true;
               resolve(response);
-
               let total = totalAmount;
-
               if (total >= coupon.minAmount) {
-
                 response.verifyMinAmount = true;
-                resolve(response)
-
+                resolve(response);
                 if (total <= coupon.maxdiscount) {
-
                   response.verifyMaxAmount = true;
-                  resolve(response)
-                }
-                else {
-                  response.maxAmountMsg = "Your Maximum Purchase should be" + coupon.maxdiscount;
+                  resolve(response);
+                } else {
+                  response.maxAmountMsg =
+                    "Your Maximum Purchase should be" + coupon.maxdiscount;
                   response.maxAmount = true;
-                  resolve(response)
+                  resolve(response);
                 }
-              }
-              else {
-
-                response.minAmountMsg = "Your Minimum purchase should be" + coupon.minAmount;
+              } else {
+                response.minAmountMsg =
+                  "Your Minimum purchase should be" + coupon.minAmount;
                 response.minAmount = true;
-                resolve(response)
+                resolve(response);
               }
-
             } else {
-              response.invalidDateMsg = 'Coupon Expired'
-              response.invalidDate = true
-              response.Coupenused = false
-
-              resolve(response)
+              response.invalidDateMsg = "Coupon Expired";
+              response.invalidDate = true;
+              response.Coupenused = false;
+              resolve(response);
             }
           }
-
         } else {
           response.invalidCoupon = true;
           response.invalidCouponMsg = "Invalid Coupon";
-          resolve(response)
+          resolve(response);
         }
 
-        if (response.dateValid && response.verifyMaxAmount && response.verifyMinAmount) {
+        if (
+          response.dateValid &&
+          response.verifyMaxAmount &&
+          response.verifyMinAmount
+        ) {
           response.verify = true;
-          db.get().collection(collection.CART_COLLECTION).updateOne({ user: ObjectId(userId) },
-            {
-              $set: {
-                coupon: ObjectId(coupon._id)
+          db.get()
+            .collection(collection.CART_COLLECTION)
+            .updateOne(
+              { user: ObjectId(userId) },
+              {
+                $set: {
+                  coupon: ObjectId(coupon._id),
+                },
               }
-            })
-          resolve(response)
+            );
+          resolve(response);
         }
-      })
+      });
     } catch (error) {
-      response.render('404', { layout: null })
+      response.render("404", { layout: null });
     }
-
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                        VERIFY  COUPON                                       */
   /* -------------------------------------------------------------------------- */
 
-
-
   couponVerify: (userId) => {
     try {
       return new Promise(async (resolve, reject) => {
-
-        let userCart = await db.get().collection(collection.CART_COLLECTION).findOne({ user: ObjectId(userId) })
+        let userCart = await db
+          .get()
+          .collection(collection.CART_COLLECTION)
+          .findOne({ user: ObjectId(userId) });
 
         if (userCart.coupon) {
+          let couponData = await db
+            .get()
+            .collection(collection.COUPON_COLLECTION)
+            .findOne({ _id: ObjectId(userCart.coupon) });
 
-          let couponData = await db.get().collection(collection.COUPON_COLLECTION).findOne({ _id: ObjectId(userCart.coupon) });
-
-          resolve(couponData)
+          resolve(couponData);
         }
         resolve(userCart);
-
-
-      })
+      });
     } catch (error) {
-      response.render('404', { layout: null })
+      response.render("404", { layout: null });
     }
   },
-
-
-
 
   /* -------------------------------------------------------------------------- */
   /*                         REMOVE COUPON                                       */
@@ -1115,47 +1178,53 @@ module.exports = {
   removeCoupon: (userId) => {
     try {
       return new Promise(async (resolve, reject) => {
-        await db.get().collection(collection.CART_COLLECTION).updateOne({ user: ObjectId(userId) }, {
-          $unset: {
-            coupon: ""
-          }
-        }).then((response) => {
-          resolve(response)
-        })
-      })
+        await db
+          .get()
+          .collection(collection.CART_COLLECTION)
+          .updateOne(
+            { user: ObjectId(userId) },
+            {
+              $unset: {
+                coupon: "",
+              },
+            }
+          )
+          .then((response) => {
+            resolve(response);
+          });
+      });
     } catch (error) {
-      response.render('404', { layout: null })
+      response.render("404", { layout: null });
     }
-
   },
 
   /* -------------------------------------------------------------------------- */
   /*                         SEARCHED PRODUCTS                                  */
   /* -------------------------------------------------------------------------- */
 
-
   searchProducts: (productName) => {
     try {
       return new Promise(async (resolve, reject) => {
-        var result = new RegExp(productName, 'i');
-        let products = await db.get().collection(collection.PRODUCT_COLLECTION).find({ name: result }).toArray()
+        var result = new RegExp(productName, "i");
+        let products = await db
+          .get()
+          .collection(collection.PRODUCT_COLLECTION)
+          .find({ name: result })
+          .toArray();
         if (products.length == 0) {
-          reject({ productNotFound: true })
+          reject({ productNotFound: true });
         } else {
-          resolve(products)
+          resolve(products);
         }
-      })
+      });
     } catch (error) {
-      response.render('404', { layout: null })
+      response.render("404", { layout: null });
     }
-
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                       SET WALLET HISTORY                                   */
   /* -------------------------------------------------------------------------- */
-
 
   setWalletHistory: async (user, data, description) => {
     let value1 = parseInt(data.productPrice);
@@ -1168,46 +1237,67 @@ module.exports = {
         date: new Date().toDateString(),
         orderId: data.orderId,
         amount: amount,
-        description: data.status
-      }
+        description: data.status,
+      };
 
-      let userDate = await db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(user._id) });
-      db.get().collection(collection.USER_COLLECTION).updateOne({ _id: ObjectId(user._id) }, {
-        $push: {
-          walletHistory: walletDetails
-        }
-      }).then((response) => {
-        resolve(response)
-      })
-    })
+      let userDate = await db
+        .get()
+        .collection(collection.USER_COLLECTION)
+        .findOne({ _id: ObjectId(user._id) });
+      db.get()
+        .collection(collection.USER_COLLECTION)
+        .updateOne(
+          { _id: ObjectId(user._id) },
+          {
+            $push: {
+              walletHistory: walletDetails,
+            },
+          }
+        )
+        .then((response) => {
+          resolve(response);
+        });
+    });
   },
-
 
   /* -------------------------------------------------------------------------- */
   /*                        RETURN ORDERED PRODUCT                              */
   /* -------------------------------------------------------------------------- */
 
- 
-  returnOrderedProduct:(orderDetails,user)=>{
-    return new Promise(async(resolve,reject)=>{
-      await db.get().collection(collection.ORDER_COLLECTION).updateOne({_id:ObjectId(orderDetails.orderId),"products.item":ObjectId(orderDetails.productId)},{
-        $set:{
-          "products.$.status":orderDetails.status
-        }
-      }).then(async()=>{
-        let value2=parseInt(orderDetails.productPrice);
-        let quantity=parseInt(orderDetails.productQuantity);
-        let amount=parseInt(value2*quantity);
-        let wallet=parseInt(user.wallet)
-        await db.get().collection(collection.USER_COLLECTION).updateOne({_id:ObjectId(user._id)},{
-          $set:{
-            wallet:amount+wallet
+  returnOrderedProduct: (orderDetails, user) => {
+    return new Promise(async (resolve, reject) => {
+      await db
+        .get()
+        .collection(collection.ORDER_COLLECTION)
+        .updateOne(
+          {
+            _id: ObjectId(orderDetails.orderId),
+            "products.item": ObjectId(orderDetails.productId),
+          },
+          {
+            $set: {
+              "products.$.status": orderDetails.status,
+            },
           }
-        })       
-       
-      })
-      resolve({ status: true })
-    })
+        )
+        .then(async () => {
+          let value2 = parseInt(orderDetails.productPrice);
+          let quantity = parseInt(orderDetails.productQuantity);
+          let amount = parseInt(value2 * quantity);
+          let wallet = parseInt(user.wallet);
+          await db
+            .get()
+            .collection(collection.USER_COLLECTION)
+            .updateOne(
+              { _id: ObjectId(user._id) },
+              {
+                $set: {
+                  wallet: amount + wallet,
+                },
+              }
+            );
+        });
+      resolve({ status: true });
+    });
   },
-
-}
+};

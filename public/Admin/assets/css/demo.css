@@ -105,3 +105,8 @@
   text-align: center;
   margin-top: 1rem;
 }
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+
+}

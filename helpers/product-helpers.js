@@ -1,9 +1,8 @@
-var db = require('../config/connection');
-var collection = require('../config/collections');
-var ObjectId = require('mongodb').ObjectId
+var db = require("../config/connection");
+var collection = require("../config/collections");
+var ObjectId = require("mongodb").ObjectId;
 
 module.exports = {
-
   /* -------------------------------------------------------------------------- */
   /*                           ADD PRODUCTS                                     */
   /* -------------------------------------------------------------------------- */
@@ -11,14 +10,15 @@ module.exports = {
   addProduct: (product) => {
     try {
       return new Promise((resolve, reject) => {
-
-        let data = db.get().collection(collection.PRODUCT_COLLECTION).insertOne(product)
-        resolve(data)
-      })
+        let data = db
+          .get()
+          .collection(collection.PRODUCT_COLLECTION)
+          .insertOne(product);
+        resolve(data);
+      });
     } catch (error) {
-      reject(error)
+      reject(error);
     }
-
   },
 
   /* -------------------------------------------------------------------------- */
@@ -27,9 +27,13 @@ module.exports = {
 
   getAllProducts: () => {
     return new Promise(async (resolve, reject) => {
-      let products = await db.get().collection(collection.PRODUCT_COLLECTION).find().toArray()
-      resolve(products)
-    })
+      let products = await db
+        .get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .find()
+        .toArray();
+      resolve(products);
+    });
   },
 
   /* -------------------------------------------------------------------------- */
@@ -38,40 +42,47 @@ module.exports = {
 
   deleteProducts: (productId) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.PRODUCT_COLLECTION).deleteOne({ _id: ObjectId(productId) }).then((response) => {
-        resolve(response)
-      })
-    })
+      db.get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .deleteOne({ _id: ObjectId(productId) })
+        .then((response) => {
+          resolve(response);
+        });
+    });
   },
 
   /* -------------------------------------------------------------------------- */
   /*                                GET PRODUCT DETAILS                         */
   /* -------------------------------------------------------------------------- */
 
-
   getProductDetails: (productId) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: ObjectId(productId) }).then((product) => {
-        resolve(product)
-      })
-    })
+      db.get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .findOne({ _id: ObjectId(productId) })
+        .then((product) => {
+          resolve(product);
+        });
+    });
   },
-
-
-
 
   /* -------------------------------------------------------------------------- */
   /*                         GET CATEGORY WISE PRODUCT DETAILS                  */
   /* -------------------------------------------------------------------------- */
 
-
-
   getCategoryWiseProducts: (categoryId) => {
     return new Promise(async (resolve, reject) => {
-      let categoryDetails = await db.get().collection(collection.CATEGORY_COLLECTION).findOne({ _id: ObjectId(categoryId) })
-      let products = await db.get().collection(collection.PRODUCT_COLLECTION).find({ category: categoryDetails.category }).toArray()
-      resolve(products)
-    })
+      let categoryDetails = await db
+        .get()
+        .collection(collection.CATEGORY_COLLECTION)
+        .findOne({ _id: ObjectId(categoryId) });
+      let products = await db
+        .get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .find({ category: categoryDetails.category })
+        .toArray();
+      resolve(products);
+    });
   },
 
   /* -------------------------------------------------------------------------- */
@@ -80,46 +91,71 @@ module.exports = {
 
   updateProduct: (productId, productDetails) => {
     return new Promise((resolve, reject) => {
-      db.get().collection(collection.PRODUCT_COLLECTION).updateOne({ _id: ObjectId(productId) }, {
-        $set: {
-          name: productDetails.name,
-          description: productDetails.description,
-          price: productDetails.price,
-          category: productDetails.category,
-          image: productDetails.image,
-          image1: productDetails.image1,
-          image2: productDetails.image2,
-          image3: productDetails.image3
-
-        }
-      }).then((response) => {
-        resolve()
-      })
-    })
+      db.get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .updateOne(
+          { _id: ObjectId(productId) },
+          {
+            $set: {
+              name: productDetails.name,
+              description: productDetails.description,
+              price: productDetails.price,
+              category: productDetails.category,
+              image: productDetails.image,
+              image1: productDetails.image1,
+              image2: productDetails.image2,
+              image3: productDetails.image3,
+            },
+          }
+        )
+        .then((response) => {
+          resolve();
+        });
+    });
   },
   fetchImage1: (productId) => {
     return new Promise(async (resolve, reject) => {
-      let detail = await db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: ObjectId(productId) }, { projection: { image: true } })
-      resolve(detail.image)
-    })
+      let detail = await db
+        .get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .findOne({ _id: ObjectId(productId) }, { projection: { image: true } });
+      resolve(detail.image);
+    });
   },
   fetchImage2: (productId) => {
     return new Promise(async (resolve, reject) => {
-      let detail = await db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: ObjectId(productId) }, { projection: { image1: true } })
-      resolve(detail.image1)
-    })
+      let detail = await db
+        .get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .findOne(
+          { _id: ObjectId(productId) },
+          { projection: { image1: true } }
+        );
+      resolve(detail.image1);
+    });
   },
   fetchImage3: (productId) => {
     return new Promise(async (resolve, reject) => {
-      let detail = await db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: ObjectId(productId) }, { projection: { image2: true } })
-      resolve(detail.image2)
-    })
+      let detail = await db
+        .get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .findOne(
+          { _id: ObjectId(productId) },
+          { projection: { image2: true } }
+        );
+      resolve(detail.image2);
+    });
   },
   fetchImage4: (productId) => {
     return new Promise(async (resolve, reject) => {
-      let detail = await db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: ObjectId(productId) }, { projection: { image3: true } })
-      resolve(detail.image3)
-    })
-  }
-
-}
+      let detail = await db
+        .get()
+        .collection(collection.PRODUCT_COLLECTION)
+        .findOne(
+          { _id: ObjectId(productId) },
+          { projection: { image3: true } }
+        );
+      resolve(detail.image3);
+    });
+  },
+};

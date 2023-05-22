@@ -1,31 +1,63 @@
- 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Banner</title>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</head>
 <body>
     <div class="registration-form">
-       <form action="/admin/postEditBanner?id={{bannerDetails._id}}" method="post" enctype="multipart/form-data">
-           <h5 class="text-danger">ADMIN EDIT BANNER</h5>
-           <br>
+        <form action="/admin/postEditBanner?id={{bannerDetails._id}}" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+            <h5 class="text-danger">ADMIN EDIT BANNER</h5>
+            <br>
             <div class="form-group">
-                <label for="">Name</label>
-                <input type="text" class="form-control item" id="username" name="name" placeholder="Product Name" value="{{bannerDetails.name}}" >
-            </div>
-               <div class="form-group">
-                <label for="">Title</label>
-                <input type="text" class="form-control item" id="username" name="title" placeholder="Banner title" required value="{{bannerDetails.title}}">
+                <label for="name">Name</label>
+                <input type="text" class="form-control item" id="name" name="name" placeholder="Product Name" value="{{bannerDetails.name}}">
             </div>
             <div class="form-group">
-                <label for="">Image1</label>
-                <img src="/banner-images/{{bannerDetails.banimg}}" alt="" style="width:50px;height:50px;padding-bottom:10px" id="imgView"  >
-                <input type="file" class="form-control" name="banimg" onchange="viewImage(event)"  >
+                <label for="title">Title</label>
+                <input type="text" class="form-control item" id="title" name="title" placeholder="Banner title" required value="{{bannerDetails.title}}">
             </div>
-            <div class="form-group text-center ">
-                <button type="submit" onclick="bannerupdated()" class="btn btn-block  create-account">SAVE</button>
+            <div class="form-group">
+                <label for="banimg">Image1</label>
+                <img src="/banner-images/{{bannerDetails.banimg}}" alt="" style="width:50px;height:50px;padding-bottom:10px" id="imgView">
+                <input type="file" class="form-control" id="banimg" name="banimg" onchange="viewImage(event)">
+            </div>
+            <div class="form-group text-center">
+                <button type="submit" class="btn btn-block create-account">SAVE</button>
             </div>
         </form>
-      
     </div>
+
     <script>
-        function viewImage(event){
-            document.getElementById('imgView').src=URL.createObjectURL(event.target.files[0])
+        function viewImage(event) {
+            document.getElementById('imgView').src = URL.createObjectURL(event.target.files[0]);
+        }
+
+        function validateForm() {
+            var name = document.getElementById('name').value;
+            var title = document.getElementById('title').value;
+            var banimg = document.getElementById('banimg').value;
+
+            if (name.trim() === '') {
+                swal('Error', 'Name field is required.', 'error');
+                return false;
+            }
+
+            if (title.trim() === '') {
+                swal('Error', 'Title field is required.', 'error');
+                return false;
+            }
+
+            if (banimg === '') {
+                swal('Error', 'Please select an image.', 'error');
+                return false;
+            }
+
+            // Assuming the form submission is successful
+            swal('Success', 'banner successfully!', 'success');
+
+            return true;
         }
     </script>
 </body>
+</html>

@@ -1,36 +1,56 @@
 <body>
-   
-    <table class="table">
-  <thead>
-    <tr>
-      <th scope="col">No</th>
-      <th scope="col">USER NAME</th>
-      <th scope="col">EMAIL</th>
-      <th scope="col">STATUS</th>
-      <th scope="col">ACTION</th>
-     
-    </tr>
-  </thead>
-  <tbody>
-    {{#each users}}
-    <tr>
-      <th scope="row">{{inc @index}}</th>
-      <td>{{this.name}}</td>
-      <td>{{this.email}}</td>
-      <td> {{#if isblocked}}
-            <span  class="btn btn-danger btn-sm">DEACTIVE</span>
-          {{else}}
-           <span style="background-color:rgb(7, 129, 7) ; color:white" class="btn  btn-sm">ACTIVE</span>
-         {{/if}}</td>
-      <td>
-        {{#if isblocked}}
-         <a href="/admin/unBlockUser?id={{this._id}}" class="btn btn-success">UNBLOCK</a>
-          {{else}}
-        <a href="/admin/blockUser?id={{this._id}}" class="btn btn-danger" onclick="return confirm('ARE YOU SURE TO BLOCK : {{this.name}}')">BLOCK</a>
-         {{/if}}
-         </td>
-    </tr>
-    {{/each}}
-  </tbody>
-</table>
+   <!-- Add the SweetAlert library -->
+   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+   <table class="table">
+      <thead>
+         <tr>
+            <th scope="col">No</th>
+            <th scope="col">USER NAME</th>
+            <th scope="col">EMAIL</th>
+            <th scope="col">STATUS</th>
+            <th scope="col">ACTION</th>
+         </tr>
+      </thead>
+      <tbody>
+         {{#each users}}
+         <tr>
+            <th scope="row">{{inc @index}}</th>
+            <td>{{this.name}}</td>
+            <td>{{this.email}}</td>
+            <td>
+               {{#if isblocked}}
+               <span class="btn btn-danger btn-sm">DEACTIVE</span>
+               {{else}}
+               <span style="background-color:rgb(7, 129, 7); color:white" class="btn btn-sm">ACTIVE</span>
+               {{/if}}
+            </td>
+            <td>
+               {{#if isblocked}}
+               <a href="/admin/unBlockUser?id={{this._id}}" class="btn btn-success">UNBLOCK</a>
+               {{else}}
+               <a href="#" class="btn btn-danger" onclick="blockUser('{{this._id}}', '{{this.name}}')">BLOCK</a>
+               {{/if}}
+            </td>
+         </tr>
+         {{/each}}
+      </tbody>
+   </table>
+
+   <!-- Add a script to handle the blockUser function -->
+   <script>
+      function blockUser(userId, userName) {
+         swal({
+            title: 'ARE YOU SURE TO BLOCK : ' + userName,
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+         }).then((confirmed) => {
+            if (confirmed) {
+               // If the user confirms, redirect to the blockUser route
+               window.location.href = '/admin/blockUser?id=' + userId;
+            }
+         });
+      }
+   </script>
 </body>

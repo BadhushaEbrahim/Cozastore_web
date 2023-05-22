@@ -65,31 +65,42 @@ $(document).ready(function () {
             }
           });
    }
-   function Addproduct(){
-    swal("Success!", "Product added successfully", "success");
-   }
-   function Addcoupon(){
-    swal("Success!", "coupon added successfully", "success");
-
-   }
-   function Addbanner(){
-    swal("Success!", "banner added successfully", "success");
-
-   }
-function Addcategory(){
-    swal("Success!", "category added successfully", "success");
- 
-}
-function editproduct(){
-    swal("Success!", "product added successfully", "success");
-
-}
-function categoryupdated(){
-    swal("Success!", "category edited successfully", "success");
-
-
-}
-function bannerupdated(){
-    swal("Success!", "banner edited successfully", "success");
-
+   function validateProductForm(){
+    // Get form inputs
+    var name = document.getElementById('username').value;
+    var category = document.getElementById('category').value;
+    var price = document.getElementById('price').value;
+    var description = document.getElementById('description').value;
+    var stock = document.getElementById('stock').value;
+    var image = document.getElementById('image').value;
+    var image1 = document.getElementById('image1').value;
+    var image2 = document.getElementById('image2').value;
+    var image3 = document.getElementById('image3').value;
+    
+    // Perform validation
+    if (name === '') {
+        Swal.fire('Error', 'Please enter a product name.', 'error');
+        return false;
+    }
+    
+    if (category === '') {
+        Swal.fire('Error', 'Please select a product category.', 'error');
+        return false;
+    }
+    
+    if (price === '') {
+        Swal.fire('Error', 'Please enter a product price.', 'error');
+        return false;
+    }
+    
+    if (price < 0) {
+        Swal.fire('Error', 'Price cannot be less than 0.', 'error');
+        return false;
+    }
+    
+    // Perform additional validation for other fields
+    
+    // All validations passed, show success alert and submit the form
+    Swal.fire('Success', 'product added successfully.', 'success');
+    return true;
 }
